@@ -31,10 +31,11 @@ Các phương pháp rank allocation thích ứng (**AdaLoRA**, **IGU-LoRA**, **B
 | Code viết xong | ✅ | 2026-10-03 |
 | Pytest 9/9 pass | ✅ | 2026-10-03 |
 | Data prepared | ✅ | 2026-10-03 |
-| Push lên GitHub | ✅ | 2026-10-03 |
+| Push GitHub | ✅ | 2026-10-03 |
 | Kaggle setup | ✅ | 2026-10-03 |
-| Smoke test | ⏳ | đang chạy |
-| Pilot C1 (125 lượt) | ⏳ | — |
+| Smoke test | ✅ | 2026-10-03 |
+| LR grid | ✅ | 2026-10-03 |
+| Pilot C1 (125 lượt) | ⏳ | đang chạy |
 | Phân tích G1 | ⏳ | — |
 | Chạy chính | ⏳ | — |
 | Bản thảo | ⏳ | — |
@@ -184,12 +185,12 @@ python code/analyze_pilot.py results/pilot/results_C1_merged.csv --cell C1
 
 | Cycle | Ngày | Session | Kết quả | Ghi chú |
 |---|---|---|---|---|
-| 0 | 2026-10-03 | Local setup | ✅ 9/9 pytest pass | peft 0.21.2 |
-| 0 | 2026-10-03 | Push GitHub | ✅ commit `495f06d` | 18 files |
-| 0 | 2026-10-03 | Kaggle setup | ✅ Dataset mounted | `lequangphat260206/peft-data` |
-| 1 | 2026-10-03 | Kaggle smoke test | ⏳ đang chạy | baseline, seed 100 |
-| 1 | — | Kaggle pilot | ⏳ | 125 lượt |
-| 1 | — | Phân tích G1 | ⏳ | — |
+| 0 | 2026-10-03 | Local setup | 9/9 pytest pass | peft 0.21.2 |
+| 0 | 2026-10-03 | Push GitHub | commit 495f06d | 18 files |
+| 0 | 2026-10-03 | Kaggle setup | Dataset mounted | 2× T4 16GB |
+| 1 | 2026-10-03 | Smoke test | batch 8: 0.775, batch 32: 0.682 | 1 epoch |
+| 1 | 2026-10-03 | LR grid | best LR = 2e-4 (F1 0.8255) | 4 epochs |
+| 1 | 2026-10-03 | Pilot | ⏳ đang chạy | 3 epochs, batch 32 |
 
 Chi tiết: xem [CHANGELOG.md](CHANGELOG.md).
 
