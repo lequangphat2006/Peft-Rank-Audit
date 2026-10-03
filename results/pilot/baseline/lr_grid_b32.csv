@@ -1,0 +1,4 @@
+C1,100,baseline,-1,8,0.825480,1327104,540.6
+cell,seed,config,layer,rank,macro_f1,lora_params,seconds
+C1,100,baseline,-1,8,0.791176,1327104,566.6
+C1,100,baseline,-1,8,0.810816,1327104,551.9

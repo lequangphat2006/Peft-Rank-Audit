@@ -35,8 +35,8 @@ Các phương pháp rank allocation thích ứng (**AdaLoRA**, **IGU-LoRA**, **B
 | Kaggle setup | ✅ | 2026-10-03 |
 | Smoke test | ✅ | 2026-10-03 |
 | LR grid | ✅ | 2026-10-03 |
-| Pilot C1 (125 lượt) | ⏳ | đang chạy |
-| Phân tích G1 | ⏳ | — |
+| Pilot C1 (125 lượt) | ✅ | 2026-10-04 |
+| Phân tích G1 | ✅ NO-GO | 2026-10-04 |
 | Chạy chính | ⏳ | — |
 | Bản thảo | ⏳ | — |
 
@@ -190,7 +190,7 @@ python code/analyze_pilot.py results/pilot/results_C1_merged.csv --cell C1
 | 0 | 2026-10-03 | Kaggle setup | Dataset mounted | 2× T4 16GB |
 | 1 | 2026-10-03 | Smoke test | batch 8: 0.775, batch 32: 0.682 | 1 epoch |
 | 1 | 2026-10-03 | LR grid | best LR = 2e-4 (F1 0.8255) | 4 epochs |
-| 1 | 2026-10-03 | Pilot | ⏳ đang chạy | 3 epochs, batch 32 |
+| 1 | 2026-10-04 | Pilot + G1 | ✅ 125/125, ρ=0.0 | NO-GO single-layer |
 
 Chi tiết: xem [CHANGELOG.md](CHANGELOG.md).
 
@@ -248,5 +248,5 @@ Chi tiết: [docs/decisions.md](docs/decisions.md).
 - **Đơn vị:** Khoa Công nghệ Thông tin, Trường Đại học Quy Nhơn
 
 <div align="center">
-<sub>Last updated: 2026-10-03 · Status: pilot in progress</sub>
+<sub>Last updated: 2026-10-04 · Status: G1 NO-GO, switch to coarse units</sub>
 </div>
