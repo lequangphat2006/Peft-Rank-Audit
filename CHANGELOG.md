@@ -1,5 +1,65 @@
 ﻿# Changelog
 
+## 2026-10-04 — Cycle 1c (Power analysis)
+
+**Observed std** of (rank32 - rank1) delta = 0.01195.
+
+| Effect size | n=5 | n=10 | n=20 | n=30 | n=50 |
+|---|---|---|---|---|---|
+| 0.005 | 0.11 | 0.22 | 0.43 | 0.60 | 0.83 |
+| 0.010 | 0.30 | 0.66 | 0.94 | 0.99 | 1.00 |
+| 0.015 | 0.57 | 0.94 | 1.00 | 1.00 | — |
+| 0.020 | 0.80 | 1.00 | 1.00 | — | — |
+
+**Kết luận:**
+- 5 seeds chỉ detect được effect ≥ 0.020 (power ≥ 0.8)
+- Effect quan sát được: 0.005–0.010 → thiếu power
+- Cần 20 seeds cho effect 0.010, 50 seeds cho effect 0.005
+
+**Hàm ý:** Negative result hiện tại chưa kết luận được. Cần chạy thêm seeds hoặc equivalence test với bound δ = 0.02.
+
+**File:** `results/analysis/power_analysis.txt` (nếu lưu output), `code/power_analysis.py`
+
+## 2026-10-04 — Cycle 1b (Module-type pilot)
+
+### Setup
+- 6 module types × 2 ranks × 5 seeds = 60 lượt
+- Config: XLM-R base, batch 32, LR 2e-4, 3 epochs
+- File: `results/pilot/results_type.csv`
+
+### Kết quả ICC per module
+
+| Module | ICC | rank1 | rank32 |
+|---|---|---|---|
+| intermediate.dense | **0.264** | -0.0067 | +0.0038 |
+| attention.output.dense | 0.129 | -0.0027 | +0.0034 |
+| output.dense | 0.111 | -0.0019 | +0.0037 |
+| attention.self.key | 0.069 | +0.0042 | -0.0022 |
+| attention.self.query | 0.061 | -0.0052 | +0.0010 |
+| attention.self.value | 0.000 | -0.0053 | -0.0054 |
+
+### ANOVA (attention vs FFN)
+- Rank 1: F=0.192, p=0.665
+- Rank 32: F=0.771, p=0.388
+
+### Kết luận
+
+Ở cả 3 resolution đều NO-GO:
+- Single layer: ρ = 0.0
+- Layer group: ICC = 0.03
+- Module type: ICC max = 0.26
+
+→ Capacity need không đo được ở bất kỳ resolution nào với 5 seeds.
+
+**Tín hiệu yếu có tồn tại:**
+- `intermediate.dense` (FFN): rank 32 tốt hơn rank 1 (+0.0105), ICC = 0.26
+- `attention.self.value`: ICC = 0 — hoàn toàn không phản ứng với rank
+- Attention nhìn chung không phản ứng với rank
+
+### Next
+- Chạy power analysis để chứng minh negative result không do thiếu power
+- Viết paper audit negative result với equivalence test
+
 ## 2026-10-04 — Cycle 1b (Coarse-unit analysis)
 
 ### Phân tích coarse unit (3 layer groups: bottom/middle/top)
