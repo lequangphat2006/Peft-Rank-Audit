@@ -1,5 +1,34 @@
 ﻿# Changelog
 
+## 2026-10-04 — Cycle 1b (Coarse-unit analysis)
+
+### Phân tích coarse unit (3 layer groups: bottom/middle/top)
+
+Chạy `code/analyze_coarse.py` trên pilot hiện có.
+
+| Chỉ số | Rank 1 | Rank 32 |
+|---|---|---|
+| ICC | 0.027 | 0.037 |
+| ANOVA p | 0.633 | 0.559 |
+| Group mean ΔF1 | -0.005 đến +0.001 | -0.002 đến +0.002 |
+
+### Phát hiện: seed effect chi phối
+
+Per-seed group mean ΔF1 cho thấy:
+- Seed 100: mọi group âm (-0.02)
+- Seed 103: mọi group dương (+0.01)
+- Các seed khác: gần 0
+
+→ ΔF1 phụ thuộc SEED, không phụ thuộc LAYER/GROUP.
+
+### Kết luận
+
+Ở cả single-layer VÀ layer-group, capacity need KHÔNG đo được. Profile ΔF1 chủ yếu là seed noise.
+
+### Next
+- Chạy module-type pilot (attention vs FFN) để kiểm tra xem tín hiệu có ở mức module không
+- Nếu không → accept negative result, viết paper "audit negative result"
+
 ## 2026-10-04 — Cycle 1 (Pilot C1 + G1 result)
 
 ### Pilot run
