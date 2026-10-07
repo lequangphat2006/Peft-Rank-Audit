@@ -1,0 +1,95 @@
+{
+  "paired_summary": [
+    {
+      "module": "attention.output.dense",
+      "mean": 0.00606,
+      "std": 0.00864,
+      "count": 5
+    },
+    {
+      "module": "attention.self.key",
+      "mean": -0.0064,
+      "std": 0.00288,
+      "count": 5
+    },
+    {
+      "module": "attention.self.query",
+      "mean": 0.00622,
+      "std": 0.01695,
+      "count": 5
+    },
+    {
+      "module": "attention.self.value",
+      "mean": -4e-05,
+      "std": 0.01189,
+      "count": 5
+    },
+    {
+      "module": "intermediate.dense",
+      "mean": 0.01042,
+      "std": 0.01384,
+      "count": 5
+    },
+    {
+      "module": "output.dense",
+      "mean": 0.00565,
+      "std": 0.0175,
+      "count": 5
+    }
+  ],
+  "icc_per_module": {
+    "attention.output.dense": {
+      "mean": 0.006064999999999987,
+      "std": 0.008636202377202582,
+      "t": 1.5703374806657882,
+      "p": 0.19142613840422223
+    },
+    "attention.self.key": {
+      "mean": -0.006395800000000018,
+      "std": 0.002883027263138487,
+      "t": -4.960564803998603,
+      "p": 0.007703011468892197
+    },
+    "attention.self.query": {
+      "mean": 0.006221800000000011,
+      "std": 0.01695241514357173,
+      "t": 0.8206717228538211,
+      "p": 0.45792471161382814
+    },
+    "attention.self.value": {
+      "mean": -4.340000000007116e-05,
+      "std": 0.011894375237901319,
+      "t": -0.008158927920351451,
+      "p": 0.9938808889214361
+    },
+    "intermediate.dense": {
+      "mean": 0.010416599999999976,
+      "std": 0.013841184642219038,
+      "t": 1.6828202423784742,
+      "p": 0.1676991090010398
+    },
+    "output.dense": {
+      "mean": 0.005651600000000001,
+      "std": 0.01749709303855931,
+      "t": 0.7222549342218255,
+      "p": 0.5101056603201021
+    }
+  },
+  "icc_across_modules": 0.1736668738237663,
+  "var_between": 3.535978359066678e-05,
+  "var_within": 0.00016824717271666668,
+  "family_summary": [
+    {
+      "family": "attention",
+      "mean": 0.00146,
+      "std": 0.01167,
+      "count": 20
+    },
+    {
+      "family": "ffn",
+      "mean": 0.00803,
+      "std": 0.01508,
+      "count": 10
+    }
+  ]
+}

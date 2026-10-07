@@ -1,5 +1,41 @@
 ﻿# Changelog
 
+## 2026-10-05 — Cycle 1e (Stage 1a — dose-response)
+
+### Kết quả
+
+**intermediate.dense (FFN) — có tín hiệu monotone:**
+
+| Rank | seed 100 | seed 105 |
+|---|---|---|
+| 1 | 0.7956 | 0.7877 |
+| 4 | 0.8022 | 0.8013 |
+| 16 | 0.8078 | 0.8179 |
+| 32 | 0.8129 | 0.8101 |
+
+- Spearman rho = **+0.878**, p = 0.004
+- Per-seed: {100: +1.0, 105: +0.8} — cả 2 seeds monotone
+- Delta rank 32 vs rank 1: **+0.020**
+
+**attention.self.key — chaotic:**
+
+- rho = -0.293, p = 0.48
+- Per-seed: {-0.4, -0.6} — không consistent
+- → Loại, noise
+
+### Kết luận
+
+- Lần đầu tiên phát hiện signal monotone ở bất kỳ resolution nào.
+- `intermediate.dense` (FFN) có capacity need thật.
+- Giả thuyết "capacity need không tồn tại" bị bác bỏ ở module-type.
+
+### Cảnh báo
+- Chỉ 2 seeds. Effect 0.020 > τ ước lượng ban đầu (0.0026). Có thể là may mắn.
+
+### Next
+- Stage 1b: 6-epoch test cho intermediate.dense (~1.5h)
+- Stage 1c: 10 seeds module-type (~7h)
+
 ## 2026-10-04 — Cycle 1c (Power analysis)
 
 **Observed std** of (rank32 - rank1) delta = 0.01195.
