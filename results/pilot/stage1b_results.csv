@@ -1,0 +1,5 @@
+cell,seed,config,layer,rank,macro_f1,f1_neg,f1_neu,f1_pos,accuracy,nll,lora_params,seconds,eval_file
+C1,100,type:intermediate.dense,-1,1,0.813062,0.956638,0.521739,0.960809,0.943054,0.203654,1004544,813.9,calibration.csv
+C1,105,type:intermediate.dense,-1,1,0.804323,0.954031,0.5,0.958939,0.940551,0.208358,1004544,814.3,calibration.csv
+C1,100,type:intermediate.dense,-1,32,0.816245,0.961333,0.525424,0.961977,0.945557,0.209377,2433024,837.8,calibration.csv
+C1,105,type:intermediate.dense,-1,32,0.808241,0.963358,0.495413,0.965952,0.948686,0.189626,2433024,847.9,calibration.csv

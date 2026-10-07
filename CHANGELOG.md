@@ -1,5 +1,38 @@
 ﻿# Changelog
 
+## 2026-10-05 — Cycle 1f (Stage 1b — 6-epoch test)
+
+### Kết quả
+
+intermediate.dense, 3 vs 6 epochs:
+
+| Seed | Rank | 3-ep F1 | 6-ep F1 | 3-ep Δ | 6-ep Δ |
+|---|---|---|---|---|---|
+| 100 | 1 | 0.7956 | 0.8131 | — | — |
+| 100 | 32 | 0.8129 | 0.8162 | +0.017 | +0.003 |
+| 105 | 1 | 0.7877 | 0.8043 | — | — |
+| 105 | 32 | 0.8101 | 0.8082 | +0.022 | +0.004 |
+| **Mean** | | | | **+0.020** | **+0.0035** |
+
+### Phát hiện
+
+Gap giữa rank 1 và rank 32 **giảm 6×** khi tăng epochs 3 → 6.
+
+Diễn giải: tín hiệu "capacity need" ở 3 epochs phần lớn là **underfitting artifact**. Với 6 epochs, rank 1 hội tụ gần bằng rank 32.
+
+### Hàm ý cho paper
+
+"Capacity need" đo được ở 3 epochs không phải thuộc tính module, mà là **artifact của training budget**.
+
+Rank allocation dựa trên score đo ở 3 epochs có thể sai khi training budget thay đổi.
+
+### NLL phụ
+- 6-epoch NLL tệ hơn 3-epoch với hầu hết configs → có thể overfitting nhẹ.
+
+### Next
+- Stage 1c: 6 modules × 2 ranks × seeds {105-109} × **6 epochs** (48 jobs mới + 2 cũ)
+- Kỳ vọng: delta 6-epoch ~+0.003, cần 10 seeds để đánh giá
+
 ## 2026-10-05 — Cycle 1e (Stage 1a — dose-response)
 
 ### Kết quả
