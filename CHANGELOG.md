@@ -1,5 +1,31 @@
 ﻿# Changelog
 
+## 2026-10-14 — Cycle 1g (Stage 1c Session 1 — ranks 1,16)
+
+### Kết quả
+- 60 jobs, 6 modules × 2 ranks × 5 seeds × 6 epochs
+- File: `results/pilot/stage1c_s1_results.csv`
+
+### Paired delta (rank16 - rank1):
+
+| Module | Mean | Std |
+|---|---|---|
+| attention.output.dense | +0.0070 | 0.0044 |
+| output.dense | +0.0007 | 0.0075 |
+| attention.self.query | -0.0009 | 0.0085 |
+| attention.self.key | -0.0001 | 0.0135 |
+| attention.self.value | -0.0095 | 0.0095 |
+| intermediate.dense | +0.0041 | 0.0186 |
+
+### Nhận xét
+- `intermediate.dense` mất tín hiệu ở rank 16 (delta +0.004 vs +0.020 ở rank 32, Stage 1a)
+- `attention.output.dense` xuất hiện tín hiệu ổn định (tất cả 5 seeds dương)
+- `attention.self.value` có delta âm (rank 16 tổn thương)
+- → Ủng hộ giả thuyết underfitting artifact cho `intermediate.dense`
+
+### Next
+- Chạy Session 2 (ranks 4, 32) để hoàn thành dose-response
+
 ## 2026-10-05 — Cycle 1f (Stage 1b — 6-epoch test)
 
 ### Kết quả
