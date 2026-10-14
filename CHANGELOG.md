@@ -1,5 +1,43 @@
 ﻿# Changelog
 
+## 2026-10-15 — Cycle 1h (Stage 1c — full dose-response, 6 modules × 4 ranks × 5 seeds)
+
+### Kết quả
+
+**Spearman rho (dose-response):** Không module nào significant (Holm m=6, tất cả p_holm = 1.000).
+
+**Paired t-test rank 32 vs rank 1:** Không module nào significant (Holm m=6, tất cả p_holm = 1.000).
+
+**Signal `intermediate.dense` từ Stage 1a (rho=0.878) biến mất ở 5 seeds (rho=0.008).**
+→ Stage 1a là fluke, không phải signal thật.
+
+**Best rank per module rải rác:** query=4, key=1, value=4, attn_out=16, inter_ffn=4, out_ffn=32.
+→ Pattern ngẫu nhiên, không có dose-response.
+
+### Kết luận
+
+**Negative result ở cả 3 resolution:**
+- Single-layer (12): ρ = 0.0
+- Layer group (3): ICC = 0.03
+- Module type (6): rho n.s., delta n.s.
+
+**Capacity need không đo được ở bất kỳ resolution nào với training budget thực tế.**
+
+### Hàm ý cho paper
+
+"Score dùng trong AdaLoRA/BaRA/IGU-LoRA có thể đang tối ưu trên noise."
+
+Paper narrative: "Is Capacity Need a Measurable Module Property? A Negative Result."
+
+### File
+- `results/pilot/stage1c_merged.csv` (120 rows)
+- `results/analysis/G1_stage1c.json`
+
+### Next
+- Power analysis cho Stage 1c
+- TOST equivalence test (δ = 0.01)
+- Quyết định: viết paper hay chạy Stage 2
+
 ## 2026-10-14 — Cycle 1g (Stage 1c Session 1 — ranks 1,16)
 
 ### Kết quả
