@@ -20,11 +20,9 @@ def test_allocate_ranks():
         sig = rng.uniform(0, 1, 12)
         r = rankcap.allocate_ranks(sig, 96)
         assert r.sum() == 96 and r.min() >= 1 and r.max() <= 32
-    # monotone: higher sigma never gets lower rank
     sig = np.linspace(0, 1, 12)
     r = rankcap.allocate_ranks(sig, 96)
     assert (np.diff(r) >= 0).all()
-    # constant sigma -> uniform 8
     assert (rankcap.allocate_ranks(np.full(12, .5), 96) == 8).all()
 
 
@@ -107,42 +105,79 @@ def test_power_sim_monotone():
 
 
 def test_end_to_end_tiny_training():
-    """train_eval trả dict với đầy đủ metric + logits."""
+    """train_and_eval v2 trả (final, epochwise).
+
+    final = {'cal': (metrics, logits, gold), 'eval': (metrics, logits, gold)}
+    epochwise = list[{'epoch': int, 'train_loss': float, 'cal_macro_f1': ..., ...}]
+    """
     import run_pilot
     from peft import get_peft_model
+
     torch.manual_seed(0)
-    X = torch.randint(3, 120, (64, 12)); y = (X[:, 0] % 3)
-    data = list(zip(X, torch.ones_like(X), y))
-    dl = torch.utils.data.DataLoader(data, batch_size=16, shuffle=True)
-    model = get_peft_model(tiny_model(),
-                           rankcap.lora_config(tiny_model(), [8] * 12))
-    metrics = run_pilot.train_eval(
-        model, dl, dl, epochs=2, lr=2e-4, device="cpu", num_classes=3
+    K = 3
+
+    # Build synthetic pre-tokenized items
+    items = []
+    for i in range(64):
+        ids = torch.randint(3, 120, (12,)).tolist()
+        items.append({
+            "input_ids": ids,
+            "attention_mask": [1] * 12,
+            "labels": i % K,
+        })
+
+    def collate(batch):
+        return (
+            torch.tensor([x["input_ids"] for x in batch]),
+            torch.tensor([x["attention_mask"] for x in batch]),
+            torch.tensor([x["labels"] for x in batch]),
+        )
+
+    dl = torch.utils.data.DataLoader(
+        items, batch_size=16, shuffle=True, collate_fn=collate)
+
+    model = get_peft_model(
+        tiny_model(), rankcap.lora_config(tiny_model(), [8] * 12))
+
+    final, epochwise = run_pilot.train_and_eval(
+        model, dl, dl, dl,
+        epochs=2, lr=2e-4, device="cpu",
+        amp_dtype=None, K=K,
     )
-    assert isinstance(metrics, dict)
-    required = ('macro_f1', 'f1_neg', 'f1_neu', 'f1_pos',
-                'accuracy', 'nll', 'logits', 'gold')
-    for key in required:
-        assert key in metrics, f'missing metric: {key}'
-    # Numeric metrics
-    for key in ('macro_f1', 'f1_neg', 'f1_neu', 'f1_pos',
-                'accuracy', 'nll'):
-        assert isinstance(metrics[key], float), \
-            f'{key} not float: {type(metrics[key])}'
-    assert 0.0 <= metrics['macro_f1'] <= 1.0
-    assert 0.0 <= metrics['accuracy'] <= 1.0
-    assert metrics['nll'] >= 0.0
-    # Logits shape: (n_samples, n_classes)
-    assert metrics['logits'].shape == (64, 3)
-    assert len(metrics['gold']) == 64
+
+    # epochwise: list of 2 records
+    assert isinstance(epochwise, list)
+    assert len(epochwise) == 2
+    for rec in epochwise:
+        assert "epoch" in rec
+        assert "train_loss" in rec
+        assert isinstance(rec["train_loss"], float)
+
+    # final: dict with 'cal' key
+    assert isinstance(final, dict)
+    assert "cal" in final
+    metrics, logits, gold = final["cal"]
+    for key in ("macro_f1", "nll", "accuracy"):
+        assert key in metrics, f"missing metric: {key}"
+        assert isinstance(metrics[key], float)
+    assert 0.0 <= metrics["macro_f1"] <= 1.0
+    assert 0.0 <= metrics["accuracy"] <= 1.0
+    assert metrics["nll"] >= 0.0
+
+    # logits shape (n_samples, K)
+    assert logits.shape[1] == K
+    assert len(gold) == logits.shape[0]
 
 
 def test_dynamic_padding_loader():
-    """Batches padded to own max length, labels aligned, BOM tolerated."""
+    """make_loader v2 nhận items đã tokenize; batches padded theo max nội bộ."""
     import run_pilot
     from tokenizers import Tokenizer, models, pre_tokenizers, trainers
     from transformers import PreTrainedTokenizerFast
-    texts = ["tot"] * 8 + ["giang day rat nhiet tinh va gan gui voi sinh vien"] * 8
+
+    texts = ["tot"] * 8 + [
+        "giang day rat nhiet tinh va gan gui voi sinh vien"] * 8
+
     tk = Tokenizer(models.WordLevel(unk_token="<unk>"))
     tk.pre_tokenizer = pre_tokenizers.Whitespace()
     tk.train_from_iterator(texts, trainers.WordLevelTrainer(
@@ -150,13 +185,31 @@ def test_dynamic_padding_loader():
     tok = PreTrainedTokenizerFast(
         tokenizer_object=tk, bos_token="<s>", pad_token="<pad>",
         eos_token="</s>", unk_token="<unk>")
-    labels = [i % 3 for i in range(len(texts))]
-    dl = run_pilot.make_loader(tok, texts, labels, 128, 4, False, 0)
+
+    # Tokenize thành items dicts
+    enc = tok(texts, truncation=True, max_length=128, padding=False)
+    items = [
+        {"input_ids": ids, "attention_mask": am, "labels": i % 3}
+        for i, (ids, am) in enumerate(zip(enc["input_ids"], enc["attention_mask"]))
+    ]
+
+    dl = run_pilot.make_loader(tok, items, bs=4, shuffle=False, seed=0)
+
+    # Batch lengths: batch với "tot" ngắn hơn batch với câu dài
     lens = [ids.shape[1] for ids, mask, y in dl]
     assert min(lens) < max(lens) < 128, \
         "batches should be padded to their own max length"
+
     ids, mask, y = next(iter(dl))
-    assert ids.shape == mask.shape and y.tolist() == labels[:4]
+    assert ids.shape == mask.shape
+    assert len(y) == 4
+    # labels 0..7 % 3 → [0,1,2,0] cho 4 item đầu
+    assert y.tolist() == [0, 1, 2, 0]
+
+
+def test_load_csv_bom():
+    """load_csv tolerate BOM."""
+    import run_pilot
     import tempfile
     f = os.path.join(tempfile.mkdtemp(), "t.csv")
     open(f, "w", encoding="utf-8-sig").write("text,label\nxin chao,2\n")
@@ -180,13 +233,11 @@ def test_group_config_definitions():
 def test_group_config_layer_ranks():
     """Group config tạo layer_ranks đúng."""
     import run_pilot
-    # bottom, rank=32
     layer_ranks = [8] * 12
     for m in run_pilot.GROUPS['bottom']:
         layer_ranks[m] = 32
     assert layer_ranks == [32, 32, 32, 32, 8, 8, 8, 8, 8, 8, 8, 8]
 
-    # top, rank=1
     layer_ranks = [8] * 12
     for m in run_pilot.GROUPS['top']:
         layer_ranks[m] = 1
