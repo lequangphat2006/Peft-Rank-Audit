@@ -1,5 +1,52 @@
 ﻿# Changelog
 
+## 2026-10-15 — Cycle 2a (Smoke test v2 — PASS)
+
+### Mục đích
+Xác nhận `run_pilot.py` v2 chạy đúng trên Kaggle T4 với cấu hình global sweep.
+
+### Setup
+- Cell: SMOKE
+- Config: `--sweep_global --ranks 1 32 --epochs_list 3 --seeds 900`
+- Model: FacebookAI/xlm-roberta-base
+- Precision: **bf16** (native T4)
+- Batch 32, LR 2e-4, max_len 128
+- Eval file: test.csv (chưa đổi)
+
+### Env thực tế Kaggle
+- torch 2.11.0+cu128
+- transformers 5.16.1
+- peft 0.20.0
+- GPU: Tesla T4
+
+### Kết quả
+
+| Chỉ số | Rank 1 | Rank 32 | Ratio |
+|---|---|---|---|
+| Test Macro-F1 | 0.8141 | 0.8442 | — |
+| Test NLL | 0.2408 | 0.2064 | — |
+| Cal Macro-F1 | 0.7742 | 0.7963 | — |
+| Cal NLL | 0.2181 | 0.2024 | — |
+| LoRA params | 165,888 | 5,308,416 | **32.0×** |
+| Seconds | 398 | 468 | — |
+
+### Artifacts (đã verify)
+- `smoke.csv` (2 rows)
+- `epochwise/*.json` (3 epochs/run)
+- `logits/*.npz` (eval + cal logits + gold)
+- `meta.jsonl` (env info)
+
+### Kết luận
+- ✅ Code v2 hoạt động đúng
+- ✅ Logits + epochwise logging đầy đủ
+- ✅ Param ratio 32.0 chính xác
+- ✅ Thời gian ~400s/run khớp ước tính
+
+### Cần chốt trước global sweep
+- Đổi `--eval_file calibration.csv` cho primary (đồng bộ với Stage 1c)
+- Test.csv chỉ báo cáo cuối
+- Ghi vào `docs/analysis_plan.md`
+
 ## 2026-10-15 — Cycle 1h (Stage 1c — full dose-response, 6 modules × 4 ranks × 5 seeds)
 
 ### Kết quả
