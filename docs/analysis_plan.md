@@ -1,6 +1,7 @@
 # Kế hoạch phân tích (đăng ký trước) — Global rank sweep
 
 Trạng thái: BẢN NHÁP, ngày 2026-10-15.
+Bối cảnh: kế hoạch này thuộc hướng đề tài mới (rank toàn cục); đề tài ban đầu về capacity need của từng lớp đã bị thay thế, xem `docs/pivot_v2.md`. Nhãn H1–H3 dưới đây **không** trùng nghĩa với H1–H7 của bản đề xuất 4.
 Chỉ được coi là "khóa" khi đã: (1) được Cô Huyên xem, (2) commit và gắn tag `analysis-plan-v1`, (3) trước khi chạy bất kỳ lượt nào của Giai đoạn 1.
 Mọi thay đổi sau đó ghi vào mục 9 (Sai lệch).
 
@@ -28,9 +29,9 @@ Trong thiết lập XLM-R-base + LoRA + UIT-VSFC (sentiment), tăng rank LoRA to
 | Seed xác nhận | **200–215 (16 seed)**. Không dùng lại seed 100–114 |
 | Siêu tham số cố định | LR 2e-4, batch 32, max_len 128, warmup 10% + cosine, wd 0.01, clip 1.0, LoRA dropout 0.1 |
 | Loss | **Cross-entropy không trọng số** (đúng với code hiện hành) |
-| Precision | **bf16** (native T4). Ghi trong CSV; không đổi giữa các lượt của cùng so sánh |
+| Precision | **bf16**, như mọi dữ liệu đã có và smoke test v2 (T4 không có bf16 gốc nên có thể là bf16 mô phỏng; kiểm tra `get_device_capability`, xem `pivot_v2.md` mục 8). Ghi trong CSV; không đổi giữa các lượt của cùng so sánh; nếu đổi sang fp16 thì đổi cho toàn bộ Giai đoạn 1 và ghi vào mục 9 |
 | Đánh giá | **Test là chỉ số chính.** Calibration chỉ dùng để chọn nhiệt độ (temperature scaling). Không chọn gì bằng test |
-| Nhân bản | R2: UIT-VSFC topic, 6 epoch, 4 rank, seed 300–307 (8 seed), cùng kế hoạch phân tích |
+| Nhân bản | R2: UIT-VSFC topic, 6 epoch, 4 rank, seed 300–307 (8 seed), cùng kế hoạch phân tích. **Điều kiện:** cần nhãn topic; `data/raw/*.csv` hiện chỉ có `text, label` (sentiment). Nếu không có nhãn topic thì dùng AG News và nêu rõ task và ngôn ngữ bị lẫn (khai báo vào mục 9) |
 
 Mỗi (seed, rank, ngân sách) là đúng một lượt.
 Seed quyết định khởi tạo head/LoRA, dropout và thứ tự dữ liệu.
@@ -48,6 +49,8 @@ Split không đổi theo seed → nhiễu do chọn tập huấn luyện không 
 - Accuracy, F1 từng lớp
 - NLL và ECE sau temperature scaling (T fit trên calibration của chính lượt đó)
 
+**Lưu ý về nguồn đánh giá:** Stage 1c và pilot đánh giá trên calibration, còn họ xác nhận dùng test (LR đã chốt bằng calibration, không có gì được chọn bằng test). Mức tuyệt đối của F1 giữa hai nguồn không so sánh trực tiếp được; hiệu ứng của rank (hiệu giữa các rank cùng nguồn) thì so sánh được. Hạn chế: 2,6% test có near-duplicate trong train.
+
 **Lưu ý:** NLL được chọn làm chỉ số chính sau khi đã thấy kết quả F1 của Stage 1c (ghi ở mục 8). Vì vậy **H2 là xác nhận trên dữ liệu mới**, không phải khám phá.
 
 ---
@@ -62,6 +65,8 @@ Hiệu ứng tổng = hệ số × log2(32/1) = hệ số × 5.
 | **H1** | Hiệu ứng tổng của rank 1→32 lên Macro-F1 tương đương 0 ở 6 epoch | TOST, **δ = 0.01**, CI 90% từ t-phân phối | Tương đương nếu p_holm < 0.05 |
 | **H2** | NLL tăng theo rank ở 6 epoch | Hệ số > 0, một phía | Xác nhận nếu p_holm < 0.05 |
 | **H3** | Độ dốc rank của Macro-F1 thay đổi giữa 3 và 6 epoch | F-test tương tác `lr:C(epochs)` (cùng seed) | Có ý nghĩa nếu p_holm < 0.05 |
+
+`code/analyze_global.py` mặc định `--delta_f1 0.01` (khớp kế hoạch). Độ nhạy: chạy lại với `--delta_f1 0.005` và `0.0075`, kết quả gắn nhãn thăm dò.
 
 **Lý do chọn δ = 0.01:**
 - Là 1 điểm Macro-F1 — mức có ý nghĩa thực tế khi so sánh phương pháp PEFT.
@@ -115,6 +120,7 @@ Lý do: power analysis chỉ ra N=12 chỉ đạt power NLL = 0.772 (< 0.8); N=1
 | 10-05 | Dose-response `intermediate.dense` (2 seed); so 3 và 6 epoch | seed 100, 105 |
 | 10-14/15 | Stage 1c: Spearman, t-test, TOST (Holm), mixed model v2, LRT/F-test v3–v4 | 6 epoch, seed 105–109, 6 module × 4 rank |
 | 10-15 | Hệ số gộp F1/NLL theo log2(rank); so sánh gộp 3 và 6 epoch | như trên |
+| 10-15 | Power analysis cho global sweep (`power_global_sweep.py`): SD dư của F1 = 0.0081, chọn δ và N | `stage1c_merged.csv` (chỉ SD dư và hiệu ứng khám phá; không dùng dữ liệu seed 200+) |
 
 **Kết quả khám phá cần xác nhận:**
 - F1 gộp: -0.0013 [-0.0051, +0.0025]

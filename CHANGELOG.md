@@ -1,5 +1,36 @@
 ﻿# Changelog
 
+## 2026-10-15 — Cycle 2b (Đổi hướng đề tài và thống nhất tài liệu)
+
+### Quyết định
+Đề tài chuyển từ "capacity need của lớp/module có đo được, ổn định, chuyển giao được không?" sang "rank LoRA toàn cục ảnh hưởng gì đến Macro-F1 và NLL, và có phụ thuộc ngân sách huấn luyện (3 so với 6 epoch) không?". Đây là thay đổi ngoài kế hoạch gốc, không phải nhánh dự phòng. Lý do, so sánh chi tiết, ánh xạ giả thuyết và việc còn mở: xem `docs/pivot_v2.md`. Trạng thái: đề xuất nội bộ, chưa được TS. Huyên duyệt.
+
+### Căn cứ
+- Pilot C1 (125 lượt): G1 NO-GO ở mức lớp (power 4,6%).
+- Nhóm lớp (ICC 0,03) và loại module (ICC tối đa 0,26) âm tính với 5 seed.
+- Stage 1a (ρ = 0,88, 2 seed) không lặp lại ở Stage 1c (ρ = 0,008, 5 seed); gap giảm ~6× ở 6 epoch.
+- Gộp khám phá: F1 −0,0013 [−0,0051; +0,0025], NLL +0,0071 [+0,0035; +0,0107].
+
+### Thống nhất tài liệu
+- `README.md`: viết lại theo hướng mới; loss ghi đúng (CE không trọng số); pilot ghi đúng 3 epoch; thêm cấu trúc `docs/`.
+- `docs/analysis_plan.md`: bf16 ghi đúng (T4 không có bf16 gốc); thêm điều kiện nhãn topic cho R2; tách nguồn đánh giá (test so với calibration); ghi chú trùng nhãn H1–H3 với bản 4.
+- `docs/roadmap_v2.md`: 12 seed/96 lượt đổi thành 16 seed/128 lượt (khớp analysis_plan), δ 0,005 đổi thành 0,01, tính lại chi phí (~32 GPU-giờ, 170 lượt); đánh dấu các bước 0.1, 0.5, 0.6 đã xong.
+- `docs/decisions.md`: sửa loss; ghi test là chỉ số chính của họ xác nhận; ghi kết quả Stage 1 và hướng hiện hành; Stage 1d chưa chạy.
+- `docs/workflow.md`: `.sh` đổi thành `.ps1` theo `scripts/`.
+- `code/analyze_global.py`: mặc định `--delta_f1` từ 0,005 thành 0,01. Không đổi logic.
+- Thêm `docs/pivot_v2.md`.
+
+### Lưu trữ để không mất chi tiết hướng cũ
+- `docs/archive/proposal_v4_capacity_need.md`, `docs/archive/spec_v2_pilot_and_grid.md`: bản markdown của hai file Word (công thức giữ nguyên), `docs/archive/README_pre_pivot.md`: README cũ.
+- `docs/exploratory_results.md`: số liệu và chú thích pilot, Stage 1a–1c; ghi rõ các câu nháp quá mạnh trong CHANGELOG không được dùng trong bài.
+
+### Việc còn mở
+1. TS. Huyên duyệt; commit và `git tag analysis-plan-v1` trước khi chạy Giai đoạn 1.
+2. Kiểm tra precision trên T4 (`get_device_capability`).
+3. Nhãn topic cho R2 (file thô chỉ có sentiment) hoặc chuyển sang AG News.
+4. Tên đề tài (mục 6 của `pivot_v2.md`).
+
+
 ## 2026-10-15 — Cycle 2a (Smoke test v2 — PASS)
 
 ### Mục đích
@@ -46,6 +77,8 @@ Xác nhận `run_pilot.py` v2 chạy đúng trên Kaggle T4 với cấu hình gl
 - Đổi `--eval_file calibration.csv` cho primary (đồng bộ với Stage 1c)
 - Test.csv chỉ báo cáo cuối
 - Ghi vào `docs/analysis_plan.md`
+
+**Giải quyết (2026-10-15, Cycle 2b):** kế hoạch phân tích chọn **test** làm chỉ số chính của họ xác nhận (LR đã khóa bằng calibration, không có gì được chọn bằng test); calibration chỉ để fit nhiệt độ. Ghi chú "Precision: bf16 (native T4)" ở trên là sai: T4 không có bf16 gốc, `meta.jsonl` chỉ cho biết `bf16` trên Tesla T4 (có thể mô phỏng). Còn mở, xem `docs/pivot_v2.md` mục 8.
 
 ## 2026-10-15 — Cycle 1h (Stage 1c — full dose-response, 6 modules × 4 ranks × 5 seeds)
 

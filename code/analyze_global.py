@@ -4,7 +4,7 @@ Input : merged CSV of run_pilot.py v2 (columns seed, rank, epochs, macro_f1, nll
 Models: metric ~ C(seed) + log2(rank)            (seed = fixed block, one run per seed x rank x budget)
         H3    : metric ~ C(seed) + C(epochs) + lr + lr:C(epochs)  (same seeds in every budget)
 Family: H1, H2, H3 with Holm (m = 3). Everything else printed here is EXPLORATORY and labelled so.
-Usage : python code/analyze_global.py results/global/global_merged.csv --primary_epochs 6 --delta_f1 0.005 \
+Usage : python code/analyze_global.py results/global/global_merged.csv --primary_epochs 6 --delta_f1 0.01 \
             --logits_dir results/global/logits --out results/analysis/global_v1.json
 """
 import argparse, json, os
@@ -74,7 +74,7 @@ def temperature_scale(logits_dir, ids_df):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("csv"); ap.add_argument("--primary_epochs", type=int, default=6)
-    ap.add_argument("--delta_f1", type=float, default=0.005); ap.add_argument("--logits_dir")
+    ap.add_argument("--delta_f1", type=float, default=0.01); ap.add_argument("--logits_dir")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     df = pd.read_csv(a.csv); out = {"n_runs": len(df), "seeds": sorted(map(int, df.seed.unique()))}

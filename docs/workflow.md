@@ -15,13 +15,13 @@
 - Save Version
 
 ### 3. Local — pull
-- pull_kaggle.sh
+- pull_kaggle.ps1
 - merge_results.py
 - analyze_pilot.py
 
 ### 4. Local — update + push
 - update_readme.py
-- push_cycle.sh
+- push_cycle.ps1
 
 ## Resume
 
