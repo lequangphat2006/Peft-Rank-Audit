@@ -1,0 +1,203 @@
+{
+  "delta_f1": 0.01,
+  "delta_nll": {
+    "attention.self.query": {
+      "4": {
+        "mean": 4.899999999999904e-05,
+        "ci_lo": -0.009671561319333256,
+        "ci_hi": 0.009769561319333254
+      },
+      "16": {
+        "mean": 0.007497000000000004,
+        "ci_lo": -0.0077984193270741,
+        "ci_hi": 0.022792419327074105
+      },
+      "32": {
+        "mean": 0.009305999999999998,
+        "ci_lo": 0.002717134591698394,
+        "ci_hi": 0.015894865408301602
+      }
+    },
+    "attention.self.key": {
+      "4": {
+        "mean": 0.0057437999999999986,
+        "ci_lo": -0.0042460565005113995,
+        "ci_hi": 0.015733656500511395
+      },
+      "16": {
+        "mean": 0.005309000000000003,
+        "ci_lo": -0.011123400616956157,
+        "ci_hi": 0.02174140061695616
+      },
+      "32": {
+        "mean": 0.006319200000000002,
+        "ci_lo": -0.008720870159947384,
+        "ci_hi": 0.02135927015994739
+      }
+    },
+    "attention.self.value": {
+      "4": {
+        "mean": -0.002801199999999998,
+        "ci_lo": -0.024550722377846813,
+        "ci_hi": 0.01894832237784682
+      },
+      "16": {
+        "mean": 0.005741599999999997,
+        "ci_lo": -0.010510105702470327,
+        "ci_hi": 0.02199330570247032
+      },
+      "32": {
+        "mean": 0.0127784,
+        "ci_lo": 0.001656181217450873,
+        "ci_hi": 0.023900618782549128
+      }
+    },
+    "attention.output.dense": {
+      "4": {
+        "mean": 0.0021362000000000048,
+        "ci_lo": -0.012186720950258243,
+        "ci_hi": 0.016459120950258255
+      },
+      "16": {
+        "mean": 0.0083656,
+        "ci_lo": -0.010783303385304085,
+        "ci_hi": 0.027514503385304086
+      },
+      "32": {
+        "mean": 0.008204400000000006,
+        "ci_lo": 0.0023334027083551775,
+        "ci_hi": 0.014075397291644833
+      }
+    },
+    "intermediate.dense": {
+      "4": {
+        "mean": -0.003538199999999997,
+        "ci_lo": -0.012695185111576296,
+        "ci_hi": 0.005618785111576303
+      },
+      "16": {
+        "mean": -0.0012070000000000026,
+        "ci_lo": -0.009869196772974528,
+        "ci_hi": 0.007455196772974523
+      },
+      "32": {
+        "mean": 0.0059025999999999966,
+        "ci_lo": -0.011537669787822141,
+        "ci_hi": 0.023342869787822136
+      }
+    },
+    "output.dense": {
+      "4": {
+        "mean": -0.004265399999999997,
+        "ci_lo": -0.01875655054523497,
+        "ci_hi": 0.010225750545234974
+      },
+      "16": {
+        "mean": 0.0018284000000000078,
+        "ci_lo": -0.01405244968968854,
+        "ci_hi": 0.017709249689688556
+      },
+      "32": {
+        "mean": -0.0028785999999999977,
+        "ci_lo": -0.017575978584765197,
+        "ci_hi": 0.011818778584765204
+      }
+    }
+  },
+  "tost_nll": {
+    "attention.self.query": {
+      "mean": 0.009305999999999998,
+      "p_tost": 0.005385307904514547,
+      "equivalent": true
+    },
+    "attention.self.key": {
+      "mean": 0.006319200000000002,
+      "p_tost": 0.032486859506260235,
+      "equivalent": true
+    },
+    "attention.self.value": {
+      "mean": 0.0127784,
+      "p_tost": 0.07288717088038578,
+      "equivalent": false
+    },
+    "attention.output.dense": {
+      "mean": 0.008204400000000006,
+      "p_tost": 0.002531495516787546,
+      "equivalent": true
+    },
+    "intermediate.dense": {
+      "mean": 0.0059025999999999966,
+      "p_tost": 0.044101737097413024,
+      "equivalent": true
+    },
+    "output.dense": {
+      "mean": -0.0028785999999999977,
+      "p_tost": 0.01592180458272866,
+      "equivalent": true
+    }
+  },
+  "tost_f1": {
+    "attention.self.query": {
+      "mean": -0.0040031999999999845,
+      "p_tost": 0.056730017531958624,
+      "equivalent": false
+    },
+    "attention.self.key": {
+      "mean": -0.0027238000000000097,
+      "p_tost": 0.15381452215242214,
+      "equivalent": false
+    },
+    "attention.self.value": {
+      "mean": -0.002360399999999996,
+      "p_tost": 0.03342719266135446,
+      "equivalent": true
+    },
+    "attention.output.dense": {
+      "mean": -0.0009486000000000106,
+      "p_tost": 0.058852563076689644,
+      "equivalent": false
+    },
+    "intermediate.dense": {
+      "mean": -0.0004873999999999823,
+      "p_tost": 0.10381446317164782,
+      "equivalent": false
+    },
+    "output.dense": {
+      "mean": 0.0011927999999999717,
+      "p_tost": 0.04739003161901044,
+      "equivalent": true
+    }
+  },
+  "mixed_nll": {
+    "params": {
+      "Intercept": 0.2016381694915252,
+      "C(module)[T.attention.self.key]": -0.0010637288135593847,
+      "C(module)[T.attention.self.query]": -0.0025680881355932797,
+      "C(module)[T.attention.self.value]": -0.0022504779661017536,
+      "C(module)[T.intermediate.dense]": 0.0008040338983050176,
+      "C(module)[T.output.dense]": 0.0029039355932202722,
+      "log2rank": 0.0018518474576270996,
+      "log2rank:C(module)[T.attention.self.key]": -0.0007300440677965935,
+      "log2rank:C(module)[T.attention.self.query]": 0.00020055932203391378,
+      "log2rank:C(module)[T.attention.self.value]": 0.0007264101694915403,
+      "log2rank:C(module)[T.intermediate.dense]": -0.0008738305084745601,
+      "log2rank:C(module)[T.output.dense]": -0.0019191220338982877,
+      "Group Var": 0.5487708114368102
+    },
+    "pvalues": {
+      "Intercept": 0.0,
+      "C(module)[T.attention.self.key]": 0.7996288845186286,
+      "C(module)[T.attention.self.query]": 0.5400097201604057,
+      "C(module)[T.attention.self.value]": 0.5912606945026814,
+      "C(module)[T.intermediate.dense]": 0.8478527216468016,
+      "C(module)[T.output.dense]": 0.4883482372088188,
+      "log2rank": 0.03607670591728748,
+      "log2rank:C(module)[T.attention.self.key]": 0.5590211409988715,
+      "log2rank:C(module)[T.attention.self.query]": 0.8724721712670984,
+      "log2rank:C(module)[T.attention.self.value]": 0.560979222166789,
+      "log2rank:C(module)[T.intermediate.dense]": 0.4843167185387086,
+      "log2rank:C(module)[T.output.dense]": 0.12454249268973648,
+      "Group Var": 0.1970977744596153
+    }
+  }
+}

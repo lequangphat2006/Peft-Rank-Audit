@@ -1,0 +1,209 @@
+{
+  "tost_nll_d0.01": {
+    "means": {
+      "attention.self.query": 0.009305999999999998,
+      "attention.self.key": 0.006319200000000002,
+      "attention.self.value": 0.0127784,
+      "attention.output.dense": 0.008204400000000006,
+      "intermediate.dense": 0.0059025999999999966,
+      "output.dense": -0.0028785999999999977
+    },
+    "p_raw": {
+      "attention.self.query": 0.3922457344778117,
+      "attention.self.key": 0.267058191380747,
+      "attention.self.value": 0.7369401095219391,
+      "attention.output.dense": 0.22181415021148385,
+      "intermediate.dense": 0.27489842575616485,
+      "output.dense": 0.12486890565106669
+    },
+    "p_holm": {
+      "attention.self.query": 1.0,
+      "attention.self.key": 1.0,
+      "attention.self.value": 1.0,
+      "attention.output.dense": 1.0,
+      "intermediate.dense": 1.0,
+      "output.dense": 0.7492134339064002
+    }
+  },
+  "tost_nll_d0.02": {
+    "means": {
+      "attention.self.query": 0.009305999999999998,
+      "attention.self.key": 0.006319200000000002,
+      "attention.self.value": 0.0127784,
+      "attention.output.dense": 0.008204400000000006,
+      "intermediate.dense": 0.0059025999999999966,
+      "output.dense": -0.0028785999999999977
+    },
+    "p_raw": {
+      "attention.self.query": 0.005385307904514547,
+      "attention.self.key": 0.032486859506260235,
+      "attention.self.value": 0.07288717088038578,
+      "attention.output.dense": 0.002531495516787546,
+      "intermediate.dense": 0.044101737097413024,
+      "output.dense": 0.01592180458272866
+    },
+    "p_holm": {
+      "attention.self.query": 0.026926539522572734,
+      "attention.self.key": 0.0974605785187807,
+      "attention.self.value": 0.0974605785187807,
+      "attention.output.dense": 0.015188973100725275,
+      "intermediate.dense": 0.0974605785187807,
+      "output.dense": 0.06368721833091465
+    }
+  },
+  "tost_nll_d0.03": {
+    "means": {
+      "attention.self.query": 0.009305999999999998,
+      "attention.self.key": 0.006319200000000002,
+      "attention.self.value": 0.0127784,
+      "attention.output.dense": 0.008204400000000006,
+      "intermediate.dense": 0.0059025999999999966,
+      "output.dense": -0.0028785999999999977
+    },
+    "p_raw": {
+      "attention.self.query": 0.00047630150617482985,
+      "attention.self.key": 0.005976782655309961,
+      "attention.self.value": 0.006327630691644194,
+      "attention.output.dense": 0.00024989916288863106,
+      "intermediate.dense": 0.009259462687502554,
+      "output.dense": 0.0034348614877131203
+    },
+    "p_holm": {
+      "attention.self.query": 0.002381507530874149,
+      "attention.self.key": 0.017930347965929884,
+      "attention.self.value": 0.017930347965929884,
+      "attention.output.dense": 0.0014993949773317865,
+      "intermediate.dense": 0.017930347965929884,
+      "output.dense": 0.013739445950852481
+    }
+  },
+  "tost_macro_f1_d0.005": {
+    "means": {
+      "attention.self.query": -0.0040031999999999845,
+      "attention.self.key": -0.0027238000000000097,
+      "attention.self.value": -0.002360399999999996,
+      "attention.output.dense": -0.0009486000000000106,
+      "intermediate.dense": -0.0004873999999999823,
+      "output.dense": 0.0011927999999999717
+    },
+    "p_raw": {
+      "attention.self.query": 0.3769423258855845,
+      "attention.self.key": 0.36664926127854736,
+      "attention.self.value": 0.21831581683476325,
+      "attention.output.dense": 0.21190856067592434,
+      "intermediate.dense": 0.2578145676164122,
+      "output.dense": 0.19971207289415382
+    },
+    "p_holm": {
+      "attention.self.query": 1.0,
+      "attention.self.key": 1.0,
+      "attention.self.value": 1.0,
+      "attention.output.dense": 1.0,
+      "intermediate.dense": 1.0,
+      "output.dense": 1.0
+    }
+  },
+  "tost_macro_f1_d0.01": {
+    "means": {
+      "attention.self.query": -0.0040031999999999845,
+      "attention.self.key": -0.0027238000000000097,
+      "attention.self.value": -0.002360399999999996,
+      "attention.output.dense": -0.0009486000000000106,
+      "intermediate.dense": -0.0004873999999999823,
+      "output.dense": 0.0011927999999999717
+    },
+    "p_raw": {
+      "attention.self.query": 0.056730017531958624,
+      "attention.self.key": 0.15381452215242214,
+      "attention.self.value": 0.03342719266135446,
+      "attention.output.dense": 0.058852563076689644,
+      "intermediate.dense": 0.10381446317164782,
+      "output.dense": 0.04739003161901044
+    },
+    "p_holm": {
+      "attention.self.query": 0.2369501580950522,
+      "attention.self.key": 0.2369501580950522,
+      "attention.self.value": 0.20056315596812674,
+      "attention.output.dense": 0.2369501580950522,
+      "intermediate.dense": 0.2369501580950522,
+      "output.dense": 0.2369501580950522
+    }
+  },
+  "tost_macro_f1_d0.02": {
+    "means": {
+      "attention.self.query": -0.0040031999999999845,
+      "attention.self.key": -0.0027238000000000097,
+      "attention.self.value": -0.002360399999999996,
+      "attention.output.dense": -0.0009486000000000106,
+      "intermediate.dense": -0.0004873999999999823,
+      "output.dense": 0.0011927999999999717
+    },
+    "p_raw": {
+      "attention.self.query": 0.0028665824923724916,
+      "attention.self.key": 0.025074387067827174,
+      "attention.self.value": 0.002239820494492026,
+      "attention.output.dense": 0.006933541052400502,
+      "intermediate.dense": 0.01846659034037358,
+      "output.dense": 0.004814401035175696
+    },
+    "p_holm": {
+      "attention.self.query": 0.014332912461862458,
+      "attention.self.key": 0.03693318068074716,
+      "attention.self.value": 0.013438922966952156,
+      "attention.output.dense": 0.020800623157201506,
+      "intermediate.dense": 0.03693318068074716,
+      "output.dense": 0.019257604140702784
+    }
+  },
+  "lrt_nll": {
+    "lr_stat": NaN,
+    "df": 5,
+    "p_lrt": NaN,
+    "full_llf": Infinity,
+    "null_llf": Infinity
+  },
+  "lrt_macro_f1": {
+    "lr_stat": NaN,
+    "df": 5,
+    "p_lrt": NaN,
+    "full_llf": Infinity,
+    "null_llf": Infinity
+  },
+  "mixed_f1": {
+    "params": {
+      "Intercept": 0.8121984813559361,
+      "C(module)[T.attention.self.key]": 0.001814505084741793,
+      "C(module)[T.attention.self.query]": -0.0012434745762751336,
+      "C(module)[T.attention.self.value]": 0.004407938983046998,
+      "C(module)[T.intermediate.dense]": 0.004135138983046729,
+      "C(module)[T.output.dense]": -0.0010126474576312111,
+      "log2rank": 0.0002626067796600392,
+      "log2rank:C(module)[T.attention.self.key]": -0.00023307457627013854,
+      "log2rank:C(module)[T.attention.self.query]": -0.0010945728813548906,
+      "log2rank:C(module)[T.attention.self.value]": -0.0014849050847447515,
+      "log2rank:C(module)[T.intermediate.dense]": -0.0002741050847446756,
+      "log2rank:C(module)[T.output.dense]": -6.34372881345197e-05,
+      "Group Var": 0.061849861216449115
+    },
+    "pvalues": {
+      "Intercept": 0.0,
+      "C(module)[T.attention.self.key]": 0.686407032358318,
+      "C(module)[T.attention.self.query]": 0.7820267191890088,
+      "C(module)[T.attention.self.value]": 0.3266978870759285,
+      "C(module)[T.intermediate.dense]": 0.35752701372814855,
+      "C(module)[T.output.dense]": 0.8217313210469324,
+      "log2rank": 0.7816544689010292,
+      "log2rank:C(module)[T.attention.self.key]": 0.8619092361365622,
+      "log2rank:C(module)[T.attention.self.query]": 0.4139951572899484,
+      "log2rank:C(module)[T.attention.self.value]": 0.2677800236887601,
+      "log2rank:C(module)[T.intermediate.dense]": 0.8379116119045069,
+      "log2rank:C(module)[T.output.dense]": 0.9622394981343942,
+      "Group Var": 0.40698383740624267
+    }
+  },
+  "seed_variance": {
+    "group_var": 3.159041027612287e-05,
+    "resid_var": 5.756576264217078e-05,
+    "icc": 0.35432667466641493
+  }
+}
