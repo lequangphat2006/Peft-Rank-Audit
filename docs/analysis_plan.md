@@ -1,7 +1,7 @@
 # Kế hoạch phân tích (đăng ký trước) — Global rank sweep
 
 Trạng thái: BẢN NHÁP, ngày 2026-10-15.
-Chỉ được coi là "khóa" khi đã: (1) được TS. Huyên xem, (2) commit và gắn tag `analysis-plan-v1`, (3) trước khi chạy bất kỳ lượt nào của Giai đoạn 1.
+Chỉ được coi là "khóa" khi đã: (1) được Cô Huyên xem, (2) commit và gắn tag `analysis-plan-v1`, (3) trước khi chạy bất kỳ lượt nào của Giai đoạn 1.
 Mọi thay đổi sau đó ghi vào mục 9 (Sai lệch).
 
 ---
