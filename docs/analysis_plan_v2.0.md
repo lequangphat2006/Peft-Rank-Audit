@@ -377,6 +377,7 @@ Ngưỡng 0,005 ≈ một sai số chuẩn theo seed với SD dư 0,0081 và 3 s
 | 2026-10-16 | Toàn quyền quyết định từ TS. Huyên | Cô uỷ quyền | Không ảnh hưởng; tag analysis-plan-v2.0 gắn bởi tác giả |
 
 | 2026-10-16 | VSMEC không có trên HF Hub (401); glue/sst2 cũng vậy | Dataset không public | Fallback `SetFit/ag\_news` cho B2–B4 nếu không upload kịp |
+| 2026-10-16 | Near-dup QC: dùng TF-IDF char_wb (3-5) thay vì word-level | Phương pháp mạnh hơn; kết quả: cal 5.19%, test 3.81% ở cosine ≥ 0.95 | Không đổi kết luận; ghi vào limitations |
 
 
 
