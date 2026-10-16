@@ -130,10 +130,10 @@ huấn luyện, dùng TOST và 16 seed."
 | 4 | IGU-LoRA (2024/2026) | ✅ **mới xác minh**, ICLR 2026 |
 | 5 | BaRA (2024/2026) | ✅ **mới xác minh**, arXiv:2606.29184 |
 | 6 | StatLoRA (2026) | ✅ **mới xác minh**, arXiv:2607.20205 |
-| 7 | Biderman et al. 2024 (LoRA Learns Less) | ⏳ cần verify |
-| 8 | Aghajanyan et al. 2021 (Intrinsic dim) | ⏳ cần verify |
-| 9 | Nguyen & Nguyen 2020 (PhoBERT) | ⏳ cần verify |
-| 10 | Conneau et al. 2020 (XLM-R) | ⏳ cần verify |
+| 7 | Biderman et al. 2024 (LoRA Learns Less) | ✅ TMLR 2024, arXiv:2405.09673 |
+| 8 | Aghajanyan et al. 2021 (Intrinsic dim) | ✅ ACL-IJCNLP 2021, arXiv:2012.13255 |
+| 9 | Nguyen & Nguyen 2020 (PhoBERT) | ✅ EMNLP 2020 Findings, arXiv:2003.00744 |
+| 10 | Conneau et al. 2020 (XLM-R) | ✅ ACL 2020, arXiv:1911.02116 |
 | 11 | Learning Rate Matters (2026) | ✅ **mới xác minh**, arXiv:2602.04998 |
 | 12 | BiLoRA (2024) | ✅ **mới bổ sung**, arXiv:2403.13037 |
 | 13 | Rethinking Rank Threshold (2026) | ✅ **mới bổ sung**, arXiv:2605.03724 |
