@@ -1,6 +1,41 @@
 # Quyết định thiết kế
 
 > Cập nhật 2026-10-15: đề tài đã đổi hướng sang rank toàn cục (xem `docs/pivot_v2.md`). Các mục Pilot, Gate G1, Stage 1 bên dưới là **lịch sử của hướng cũ**; hướng hiện hành nằm ở cuối file và trong `docs/analysis_plan.md`.
+> Cập nhật 2026-10-16: **TS. Huyên đã uỷ quyền toàn bộ quyết định cho tác giả chính.** Tag `analysis-plan-v2.0` sẽ được gắn bởi tác giả, không cần chờ duyệt. Các mục dưới đây là lịch sử.
+
+## Toàn quyền quyết định (2026-10-16)
+
+| Mục | Giá trị |
+|---|---|
+| Mức L hay C | **L** (Core) |
+| Tag `analysis-plan-v2.0` | Tác giả tự tag |
+| Tên đề tài | Giữ theo `docs/pivot_v2.md` mục 6 |
+| Thứ tự tác giả | Giữ nguyên: TS. Huyên liên hệ, Phát đồng tác giả |
+| Hạn chót nội bộ | Nộp 12-14/12/2026 theo v4.1 |
+| Tạp chí | Chốt sau khi có kết quả R1 (dự kiến 11-06) |
+
+## Reference baselines (2026-10-16)
+
+| Cấu hình | LR | n | Test F1 | Cal F1 | Test NLL |
+|---|---|---|---|---|---|
+| Head-only (sàn) | 2e-4 | 8 | 0.5879 ± 0.0043 | 0.5825 | 0.4228 |
+| **Full FT (trần)** | **2e-5** | 5 | **0.8486 ± 0.0084** | 0.8165 | 0.2782 |
+| Full FT (LR sai → collapse) | 2e-4 | 5 | 0.2199 ± 0.0000 | — | — |
+
+**Ghi chú:** LR 2e-4 (dùng cho LoRA rank 8) làm full FT collapse. Full FT cần LR = 2e-5.
+
+**Phát hiện phụ:** LoRA rank 32 (smoke test v2, 1 seed, 3 epoch) đạt Test F1 = 0.8442, NLL = 0.2064 — gần bằng full FT về phân biệt, tốt hơn về hiệu chuẩn. Cần xác nhận ở Phase 1a.
+
+## Seed reference
+
+| Dải seed | Dùng cho |
+|---|---|
+| 100–114 | Pilot, Stage 1a–1c (khám phá) |
+| 200–215 | R1 (chính) |
+| 300–307 | Cell B |
+| 400–402 | Tune |
+| 500–502 | Thử σ mỗi cell B |
+| 600–607 | Reference (head + full FT) |
 
 ## Môi trường
 

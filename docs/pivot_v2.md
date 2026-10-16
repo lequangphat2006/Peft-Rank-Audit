@@ -131,15 +131,13 @@ Theo `analysis_plan.md` mục 10 và `roadmap_v2.md` mục 8:
 
 ## 8. Việc còn mở trước khi chạy Giai đoạn 1
 
-Danh sách này khớp với `roadmap_v2.md` mục 2 và 11.
-
-| # | Việc | Ai quyết | Mặc định đang ghi trong tài liệu |
+| # | Việc | Ai quyết | Trạng thái |
 |---|---|---|---|
-| 1 | TS. Huyên duyệt `analysis_plan.md`, rồi commit và gắn tag `analysis-plan-v1` | TS. Huyên | Chưa khóa |
-| 2 | Precision trên T4: `smoke.csv.meta.jsonl` ghi `bf16` trên Tesla T4, mà T4 không có bf16 gốc nên có thể là bf16 mô phỏng (chậm). Chạy `python -c "import torch;print(torch.cuda.get_device_capability(0), torch.cuda.is_bf16_supported())"` trên Kaggle | Nhóm | Giữ bf16 để khớp mọi dữ liệu đã có; chỉ đổi sang fp16 cho **toàn bộ** Giai đoạn 1 nếu thấy cần |
-| 3 | Nhãn topic cho R2: `data/raw/*.csv` chỉ có cột `text, label` (sentiment), **không có topic** | Nhóm | Lấy nhãn topic từ bản gốc UIT-VSFC; nếu không có thì dùng AG News và nêu rõ task và ngôn ngữ bị lẫn |
-| 4 | Chỉ số đánh giá chính: test (kế hoạch) hay calibration (ghi chú smoke test cũ) | Nhóm | **Test**, vì LR đã chốt bằng calibration và không có gì được chọn bằng test; calibration chỉ để fit nhiệt độ. Hạn chế cần nêu: 2,6% test có near-duplicate trong train |
-| 5 | Loss | Nhóm | Cross-entropy không trọng số (khớp code và mọi kết quả đã có); docs cũ ghi "class-weighted" đã được sửa |
+| 1 | Tag `analysis-plan-v2.0` chính thức | Bạn (toàn quyền từ TS. Huyên) | 2026-10-17 |
+| 2 | Precision trên T4: chốt **fp16** | Bạn | 2026-10-16 (benchmark 3,27×) |
+| 3 | VSMEC: dùng github UIT hoặc fallback | Bạn | Chưa (cần trước 11-04) |
+| 4 | Chỉ số đánh giá chính: test | Bạn | Đã chốt |
+| 5 | Loss: CE không trọng số | Bạn | Đã chốt |
 
 ---
 
