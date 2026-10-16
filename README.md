@@ -1,7 +1,7 @@
 <div align="center">
 
-[![OSF Preregistration](https://img.shields.io/badge/OSF-Preregistered-blue)](https://osf.io/a2mn5/)
-**Pre-registration:** [https://osf.io/a2mn5/](https://osf.io/a2mn5/) (submitted 2026-10-16)
+[![OSF Preregistration](https://img.shields.io/badge/OSF-Preregistered-blue)](https://doi.org/10.17605/OSF.IO/A2MN5)
+**Pre-registration:** [10.17605/OSF.IO/A2MN5](https://doi.org/10.17605/OSF.IO/A2MN5) (public 2026-10-16)
 
 # PEFT Rank Audit
 

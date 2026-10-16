@@ -9,12 +9,14 @@
 | Mục | Giá trị |
 |---|---|
 | URL | https://osf.io/a2mn5/ |
+| **DOI** | **10.17605/OSF.IO/A2MN5** |
 | Short ID | a2mn5 |
 | Title | Global LoRA Rank On XLM-R/UIT-VSFC: Confirmatory Analysis Plan V2.0 |
-| Status | Pending approval (OSF duyệt 24-72h) |
-| DOI | Cấp khi chuyển sang public (dự kiến 10-19) |
+| Status | **Public** |
 | Ngày submit | 2026-10-16 |
+| Ngày public | 2026-10-16 |
 | Git tag liên quan | analysis-plan-v2.0 (commit 9ce42ae) |
+| Project gốc | https://osf.io/r87m3 |
 
 Registration này khóa analysis plan v2.0 trước khi chạy bất kỳ lượt xác nhận nào (H1-H3, seed 200-215). Mọi thay đổi sau đó ghi vào `docs/analysis_plan_v2.0.md` mục 9 và cập nhật registration nếu cần.
 
