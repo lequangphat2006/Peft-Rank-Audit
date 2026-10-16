@@ -1,4 +1,34 @@
-﻿# Changelog
+# Changelog
+
+## 2026-10-17 — Cycle 3 (Chốt trước Phase 1)
+
+### Kế hoạch phân tích v2.0 — mục 9 (Sai lệch)
+
+Bốn dòng mới trong `docs/analysis_plan_v2.0.md` mục 9, ghi **trước khi đọc kết quả seed 401–402 và trước R1**:
+
+1. **Quy tắc mở rộng lưới LR** đúng một bước ngoài biên (5e-5 ở biên dưới, 2e-3 ở biên trên) cho rank có LR chọn (sau quy tắc hòa) chạm biên lưới sau 3 seed tune. Không mở rộng quá một bước.
+2. **Độ nhạy H1**: (i) TOST trực tiếp hiệu số trung bình rank 32 trừ rank 1, δ = 0,01, CI 90%; (ii) kiểm lệch tuyến tính `log2(rank)` so với rank dạng phân loại. H1 đã đăng ký vẫn là phân tích chính.
+3. **Định nghĩa lượt "sập"**: Macro-F1 calibration < 0,25 (dự đoán lớp đa số, F1 ≈ 0,2207). Lượt sập **giữ** trong bảng tuning và tính trung bình chọn LR; báo cáo tỷ lệ sập theo (rank, LR).
+4. **Quy trình ghép shard tuning**: seed 400 chỉ đặt ở `tuning_gpu0.csv`; dedupe theo `run_id`; assert 60 dòng trước khi chạy analyze_tuning.
+
+### Sửa lỗi trong kế hoạch sáng 10-17
+
+- Cell 1 trong hướng dẫn cũ copy seed 400 vào cả 2 file → 80 dòng. Sửa: **chỉ gpu0**; merge thêm `drop_duplicates("run_id")` + assert 60.
+- Dòng log kỳ vọng đúng là `<N> jobs in this shard, <X> already done, <Y> to run`, không phải `[run_pilot] skip`.
+
+### Ghi chú nhất quán giữa các commit
+
+`run_pilot.py` **không đổi** giữa commit `6ef174b` (chạy seed 400) và `dd8be95` (hiện tại) — kiểm bằng `git diff --stat 6ef174b dd8be95 -- code`. Vì vậy 20 lượt seed 400 cũ và 40 lượt seed 401–402 mới chạy cùng mã huấn luyện. Cột `git` trong CSV hiển thị hai hash khác nhau — đây là metadata, không phải điều kiện không nhất quán.
+
+### Tài liệu mới
+
+- `docs/exploratory_results.md` mục 10.2: bảng lưới LR seed 400 (5 rank × 4 LR), tối ưu chạm biên ở rank 4 (trên), rank 8/16/32 (dưới).
+- `_inbox/kaggle_cells_1017.py`: các cell Kaggle sáng 10-17 đã sửa (không commit).
+
+### Còn mở
+
+- OSF: cân nhắc cập nhật/addendum cho 4 dòng mục 9 (theo quy trình OSF hiện hành).
+- Xác nhận TS. Huyên về quy tắc mở rộng lưới (mục 9, dòng 1).
 
 ## 2026-10-15 — Cycle 2b (Đổi hướng đề tài và thống nhất tài liệu)
 

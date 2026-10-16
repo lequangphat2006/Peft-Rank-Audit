@@ -165,3 +165,25 @@ Trong 20 lượt tune seed 400 (5 rank × 4 LR, 6 epoch, calibration), 3 lượt
 - Không thể chốt một LR duy nhất cho mọi rank — cần tune per rank.
 - `analysis_plan_v2.0.md` mục 5 xử lý bằng LR per rank; nhánh LR cố định 2e-4 (mục 4, điều kiện bền 2) làm robustness check.
 - 3 lượt collapse vẫn giữ trong bảng tuning, không loại bỏ (mục 11 quy tắc vận hành: lượt NaN/ hỏng vẫn giữ, đếm, báo cáo).
+
+### 10.2. Lưới LR seed 400 — tối ưu chạm biên
+
+Macro-F1 calibration, seed 400, 6 epoch (từ `results/tuning/tuning_seed400.csv`):
+
+| Rank | LR 1e-4 | LR 2e-4 | LR 5e-4 | LR 1e-3 | Tối ưu | Vị trí |
+|---|---|---|---|---|---|---|
+| 1 | 0.7819 | **0.8072** | 0.7985 | 0.8039 | 2e-4 | trong lưới |
+| 4 | 0.8026 | 0.8139 | 0.8197 | **0.8316** | 1e-3 | **biên trên** |
+| 8 | **0.8158** | 0.8035 | 0.8025 | 0.8028 | 1e-4 | **biên dưới** |
+| 16 | 0.8096 | 0.8074 | 0.8129 | 0.2207 (sập) | 1e-4 sau quy tắc hòa | **biên dưới** |
+| 32 | **0.8201** | 0.8140 | 0.2207 (sập) | 0.2207 (sập) | 1e-4 | **biên dưới** |
+
+**Ba quan sát:**
+
+1. **Rank lớn thích LR nhỏ hơn rank nhỏ.** Với α = 2r, biên độ ΔW tăng theo rank; rank cao không chịu được LR cao. F1 rank 8/16/32 giảm hoặc sập khi LR tăng.
+2. **Tối ưu chạm biên ở cả hai phía.** Rank 4 chạm biên trên; rank 8/16/32 chạm biên dưới. Với lưới đã đăng ký OSF {1e-4, 2e-4, 5e-4, 1e-3}, chưa biết tối ưu thật nằm trong hay ngoài lưới.
+3. **Quy tắc mở rộng lưới một bước** (ghi vào `analysis_plan_v2.0.md` mục 9 ngày 2026-10-17, trước khi đọc seed 401–402) xử lý điều này minh bạch: chạy thêm 5e-5 cho rank 8/16/32, 2e-3 cho rank 4, 3 seed 400–402, ngưỡng hòa 0,005.
+
+**Lưu ý về ngưỡng hòa 0,005:** một số lựa chọn LR thực chất là hòa. Ví dụ rank 16 giữa 1e-4 (F1 = 0.8096) và 5e-4 (F1 = 0.8129) chênh 0.0033 < 0.005 → theo quy tắc mục 5 của kế hoạch, chọn LR nhỏ hơn (1e-4). Đây là hành vi đã đăng ký, không phải quyết định sau khi thấy dữ liệu.
+
+**Patch kỹ thuật:** `code/analyze_tuning.py` thêm block `sys.stdout.reconfigure(encoding="utf-8")` trước `if __name__ == "__main__"`, để chạy được trên Windows (cp1252) mà không cần `chcp 65001`. Idempotent trên Linux/Kaggle. Lý do: lần chạy đầu tiên trên local crash với `UnicodeEncodeError` khi `print()` chuỗi có ký tự tiếng Việt.

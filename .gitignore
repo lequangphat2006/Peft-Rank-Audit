@@ -41,3 +41,5 @@ results/**/*.npz
 results/**/epochwise/
 results/**/logits/
 results/**/deltaw/
+# Thu muc tam, khong commit
+_inbox/

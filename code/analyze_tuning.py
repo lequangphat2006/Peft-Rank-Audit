@@ -100,5 +100,14 @@ def main():
     print(f"\nĐã lưu: {a.out}")
 
 
+# --- UTF-8 stdout/stderr (Windows cp1252 fix; idempotent on Linux) ---
+import sys as _sys
+try:
+    _sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    _sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except (AttributeError, OSError):
+    pass
+# --- end fix ---
+
 if __name__ == "__main__":
     main()
