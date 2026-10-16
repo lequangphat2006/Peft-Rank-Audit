@@ -109,14 +109,37 @@ Các hàm trong `code/rankcap.py` phục vụ hướng cũ vẫn còn và còn �
 
 Hai điều từ bản 4 vẫn nên giữ ngay cả trong hướng mới: (a) trần độ tin cậy, tức một proxy không thể dự đoán một profile tốt hơn chính độ tin cậy của profile đó; (b) quy tắc "một giả thuyết mà mô phỏng cho thấy không đủ power sẽ bị hạ xuống thăm dò trước khi chạy". Điều (b) tương ứng với quy tắc dừng và bảng diễn giải trong `analysis_plan.md` (mục 6 và 10). Điều (a) chưa có chỗ trong kế hoạch mới (không còn profile để dự đoán); chỉ cần nhớ nếu quay lại câu hỏi phân bổ theo module.
 
-## 6. Hệ quả cho tên đề tài (đề xuất, cần TS. Huyên duyệt)
+## 6. Tên đề tài (đã chốt 2026-10-17, chờ TS. Huyên xác nhận lần cuối)
 
-Tên cũ ("kiểm toán đa tác vụ, đa ngôn ngữ, nhận biết mất cân bằng lớp về phân bổ rank") **không còn khớp** với nội dung. Đề xuất:
+### Tên chính thức
 
-- Tiếng Việt: *Rank LoRA toàn cục có cải thiện khả năng phân biệt và hiệu chuẩn? Một kiểm toán đăng ký trước trên XLM-R với UIT-VSFC.*
-- Tiếng Anh: *Does Global LoRA Rank Matter? A Pre-Registered Audit of Discrimination and Calibration Under Fixed Training Budgets.*
+**Tiếng Anh (dùng cho paper, OSF, GitHub):**
+> How Much Does Global LoRA Rank Matter? A Preregistered Equivalence and Calibration Audit on XLM-R/UIT-VSFC.
 
-Nếu tên cũ đã được đăng ký hay phê duyệt ở đâu đó, cần báo cô về việc thu hẹp phạm vi.
+**Tiếng Việt (dùng cho báo cáo nội bộ, hội đồng):**
+> Rank LoRA toàn cục ảnh hưởng gì đến khả năng phân biệt và hiệu chuẩn? Một kiểm toán đăng ký trước trên XLM-R với UIT-VSFC.
+
+### Lý do chọn
+
+1. **"How Much" thay vì "Does"**: câu hỏi thật của H1 là *mức độ* (kiểm định tương đương, δ = 0,01), không phải có/không. "How Much" phản ánh đúng estimand.
+2. **"Equivalence"**: đây là điểm khác biệt so với các paper LoRA khác (đa số dùng superiority test). Nêu rõ ngay trong tiêu đề.
+3. **"Calibration"**: phản ánh H2 (NLL), không để người đọc hiểu nhầm chỉ đo F1.
+4. **"Across Training Budgets"**: đã cân nhắc nhưng rút khỏi tiêu đề Anh cho gọn; sẽ nêu trong abstract (H3 = 3 so với 6 epoch).
+5. **"Preregistered"** (1 từ, khớp OSF style): nhấn tính reproducible.
+6. **XLM-R/UIT-VSFC** trong subtitle: cụ thể hóa phạm vi, tránh overclaim "rank nói chung".
+
+### Tên cũ (không còn dùng)
+
+- *"kiểm toán đa tác vụ, đa ngôn ngữ, nhận biết mất cân bằng lớp về phân bổ rank"* — không còn khớp với nội dung (đề tài hiện tại là rank toàn cục, một mô hình, một ngôn ngữ).
+- *"Capacity need có đo được không?"* — đã bị thay thế bởi hướng rank toàn cục, xem mục 1–3.
+
+Nếu tên cũ đã được đăng ký hoặc phê duyệt ở đâu đó (hội đồng, trường), cần báo TS. Huyên về việc thu hẹp phạm vi.
+
+### Việc cần làm khi tên được chốt
+
+- Cập nhật tiêu đề trong OSF registration (nếu OSF cho phép sửa) — qua update/addendum, cùng cách đã làm cho mục 9.
+- Đổi tên repo GitHub? **Không** — giữ `Peft-Rank-Audit` vì URL đã xuất hiện trong notebook, OSF, docs. Chỉ đổi description repo nếu cần.
+- Khi viết bản thảo, dùng nguyên tên Anh. Khi trình bày hội đồng, dùng tên Việt.
 
 ---
 
