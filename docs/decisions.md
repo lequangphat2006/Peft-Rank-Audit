@@ -187,3 +187,16 @@
 **Ghi chú quan trọng:** LR 2e-4 (dùng cho LoRA rank 8) làm full FT collapse về majority class (F1 = 0.22). Full FT cần LR = 2e-5. Đây là bằng chứng LR phải tune riêng cho từng phương pháp PEFT — khớp với lit review (Biderman 2024, LR Matters 2026).
 
 **Phát hiện phụ:** LoRA rank 32 (smoke test v2, 1 seed, 3 epoch) đạt Test F1 = 0.8442, NLL = 0.2064 — gần bằng full FT về phân biệt và tốt hơn về hiệu chuẩn (0.2064 vs 0.2782). Cần xác nhận ở Phase 1a.
+
+## Near-duplicate QC (2026-10-16)
+
+Phương pháp: TF-IDF `char_wb` (3-5 gram), cosine similarity với train. Ngưỡng 0.90, 0.95, 0.98.
+
+| Split | ≥0.90 | ≥0.95 | ≥0.98 | max_sim_mean |
+|---|---|---|---|---|
+| Calibration | 12.20% | 5.19% | 0.69% | 0.652 |
+| Test | 10.44% | 3.81% | 0.56% | 0.649 |
+
+**Ghi chú:** Ghi chú cũ trong CHANGELOG (test ~2.6% ở ngưỡng 0.95) dùng TF-IDF word-level; phương pháp mới dùng char_wb n-gram nên bắt được nhiều cặp hơn. Cả hai hợp lệ, khác định nghĩa "gần trùng". Không đủ để đổi kết luận — leak ảnh hưởng cả 5 rank như nhau.
+
+Script: `code/check_near_dup.py`. Kết quả thô: `results/analysis/near_dup_vsfc.json`.
