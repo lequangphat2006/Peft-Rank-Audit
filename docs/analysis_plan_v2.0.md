@@ -1,6 +1,7 @@
 \# Kế hoạch phân tích (đăng ký trước) — Global rank sweep, v2.0
 
-
+**OSF Pre-registration:** [https://osf.io/a2mn5/](https://osf.io/a2mn5/)
+**Submitted:** 2026-10-16 · **Status:** pending approval · **DOI:** sẽ cập nhật khi public
 
 Trạng thái: \*\*BẢN CHÍNH THỨC từ 2026-10-17\*\*, tag `analysis-plan-v2.0`.
 

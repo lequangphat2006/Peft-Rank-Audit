@@ -1,5 +1,8 @@
 <div align="center">
 
+[![OSF Preregistration](https://img.shields.io/badge/OSF-Preregistered-blue)](https://osf.io/a2mn5/)
+**Pre-registration:** [https://osf.io/a2mn5/](https://osf.io/a2mn5/) (submitted 2026-10-16)
+
 # PEFT Rank Audit
 
 **Kiểm toán ảnh hưởng của rank LoRA đến khả năng phân biệt và hiệu chuẩn**

@@ -1,7 +1,22 @@
 # Quyết định thiết kế
 
 > Cập nhật 2026-10-15: đề tài đã đổi hướng sang rank toàn cục (xem `docs/pivot_v2.md`). Các mục Pilot, Gate G1, Stage 1 bên dưới là **lịch sử của hướng cũ**; hướng hiện hành nằm ở cuối file và trong `docs/analysis_plan.md`.
+
 > Cập nhật 2026-10-16: **TS. Huyên đã uỷ quyền toàn bộ quyết định cho tác giả chính.** Tag `analysis-plan-v2.0` sẽ được gắn bởi tác giả, không cần chờ duyệt. Các mục dưới đây là lịch sử.
+
+## OSF Pre-registration (2026-10-16)
+
+| Mục | Giá trị |
+|---|---|
+| URL | https://osf.io/a2mn5/ |
+| Short ID | a2mn5 |
+| Title | Global LoRA Rank On XLM-R/UIT-VSFC: Confirmatory Analysis Plan V2.0 |
+| Status | Pending approval (OSF duyệt 24-72h) |
+| DOI | Cấp khi chuyển sang public (dự kiến 10-19) |
+| Ngày submit | 2026-10-16 |
+| Git tag liên quan | analysis-plan-v2.0 (commit 9ce42ae) |
+
+Registration này khóa analysis plan v2.0 trước khi chạy bất kỳ lượt xác nhận nào (H1-H3, seed 200-215). Mọi thay đổi sau đó ghi vào `docs/analysis_plan_v2.0.md` mục 9 và cập nhật registration nếu cần.
 
 ## Toàn quyền quyết định (2026-10-16)
 
