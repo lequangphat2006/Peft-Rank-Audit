@@ -109,7 +109,7 @@ Các hàm trong `code/rankcap.py` phục vụ hướng cũ vẫn còn và còn �
 
 Hai điều từ bản 4 vẫn nên giữ ngay cả trong hướng mới: (a) trần độ tin cậy, tức một proxy không thể dự đoán một profile tốt hơn chính độ tin cậy của profile đó; (b) quy tắc "một giả thuyết mà mô phỏng cho thấy không đủ power sẽ bị hạ xuống thăm dò trước khi chạy". Điều (b) tương ứng với quy tắc dừng và bảng diễn giải trong `analysis_plan.md` (mục 6 và 10). Điều (a) chưa có chỗ trong kế hoạch mới (không còn profile để dự đoán); chỉ cần nhớ nếu quay lại câu hỏi phân bổ theo module.
 
-## 6. Tên đề tài (đã chốt 2026-10-17, chờ TS. Huyên xác nhận lần cuối)
+## 6. Tên đề tài (chốt 2026-10-17)
 
 ### Tên chính thức
 
