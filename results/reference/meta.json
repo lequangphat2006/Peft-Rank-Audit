@@ -1,0 +1,8 @@
+{
+ "date": "2026-10-16 04:08:32",
+ "git_commit": "6ef174b608525a5502ea5dd75b54e25513c153c6",
+ "gpu": "Tesla T4",
+ "precision": "fp16",
+ "torchao_removed": true,
+ "notes": "Reference baselines + preflight LR sweep. Full FT d\u00f9ng LR=2e-5 (LR 2e-4 collapse)."
+}

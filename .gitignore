@@ -35,3 +35,9 @@ Thumbs.db
 
 # Results raw (chỉ giữ merged)
 results/**/raw/
+
+# Large artifacts (never push)
+results/**/*.npz
+results/**/epochwise/
+results/**/logits/
+results/**/deltaw/
