@@ -142,3 +142,26 @@ Loss curve xác nhận:
 ### Hành động
 - Chạy seed 401, 402 (ngày mai) để đủ 3 seed → chốt LR theo rank chính thức
 - Ghi vào limitations: "LR ≥ 5e-4 không ổn định với rank ≥ 16"
+
+### 10.1. Chi tiết 3 lượt collapse (tune seed 400)
+
+Trong 20 lượt tune seed 400 (5 rank × 4 LR, 6 epoch, calibration), 3 lượt collapse về majority class:
+
+| Rank | LR | F1 (cal) | NLL (cal) | Ghi chú |
+|---|---|---|---|---|
+| 16 | 1e-3 | 0.2207 | ~0.837 | Khớp prior lớp train |
+| 32 | 5e-4 | 0.2207 | ~0.837 | |
+| 32 | 1e-3 | 0.2207 | ~0.837 | |
+
+**Chẩn đoán:**
+- F1 = 0.2207 khớp dự đoán majority-class baseline trên calibration.
+- NLL ≈ 0.837 ≈ entropy lớp train `H(p) = -Σ p log p` với p = [0.468, 0.041, 0.491]. Mô hình xuất phân bố gần như prior, không học được tín hiệu.
+- Loss không giảm theo epoch (cần xác nhận từ `epochwise/*.json` của lượt collapse).
+
+**Nguyên nhân khả dĩ:** với α = 2r, rank cao → α lớn → biên độ ΔW lớn. Ở LR cao (5e-4, 1e-3), cập nhật LoRA làm nhiễu head và encoder; rank 16 và 32 không chịu được LR mà rank nhỏ vẫn chịu được.
+
+**Hàm ý cho thiết kế:**
+- LR tối ưu phụ thuộc rank (tương tác rank × LR), ít nhất ở seed 400.
+- Không thể chốt một LR duy nhất cho mọi rank — cần tune per rank.
+- `analysis_plan_v2.0.md` mục 5 xử lý bằng LR per rank; nhánh LR cố định 2e-4 (mục 4, điều kiện bền 2) làm robustness check.
+- 3 lượt collapse vẫn giữ trong bảng tuning, không loại bỏ (mục 11 quy tắc vận hành: lượt NaN/ hỏng vẫn giữ, đếm, báo cáo).
