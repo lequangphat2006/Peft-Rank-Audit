@@ -4,12 +4,14 @@
 
 ## Môi trường
 
+
 | Mục | Giá trị |
 |---|---|
 | Local GPU | RTX 3050 4GB, torch CPU-only |
 | Train GPU | Kaggle T4 16GB |
 | Local role | Code, prepare, analyze |
 | Kaggle role | Train |
+| Seed reference (head/full FT) | 600–607 (8) |
 
 ## Model
 
@@ -138,3 +140,15 @@
 | Cell B2 | VSMEC × XLM-R-base (fallback: `SetFit/ag_news` nếu không kịp) |
 | Cell B4 | AG News × XLM-R-base |
 | Shard | split by seed: `--shard 0/2` → seed chẵn, `--shard 1/2` → seed lẻ |
+
+## Reference baselines (2026-10-16)
+
+| Cấu hình | LR | n | Test F1 | Cal F1 | Test NLL |
+|---|---|---|---|---|---|
+| Head-only (sàn) | 2e-4 | 8 | 0.5879 ± 0.0043 | 0.5825 | 0.4228 |
+| **Full FT (trần)** | **2e-5** | 5 | **0.8486 ± 0.0084** | 0.8165 | 0.2782 |
+| Full FT (LR sai → collapse) | 2e-4 | 5 | 0.2199 ± 0.0000 | — | — |
+
+**Ghi chú quan trọng:** LR 2e-4 (dùng cho LoRA rank 8) làm full FT collapse về majority class (F1 = 0.22). Full FT cần LR = 2e-5. Đây là bằng chứng LR phải tune riêng cho từng phương pháp PEFT — khớp với lit review (Biderman 2024, LR Matters 2026).
+
+**Phát hiện phụ:** LoRA rank 32 (smoke test v2, 1 seed, 3 epoch) đạt Test F1 = 0.8442, NLL = 0.2064 — gần bằng full FT về phân biệt và tốt hơn về hiệu chuẩn (0.2064 vs 0.2782). Cần xác nhận ở Phase 1a.

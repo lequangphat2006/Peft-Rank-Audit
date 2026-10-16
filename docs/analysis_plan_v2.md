@@ -178,7 +178,9 @@ Ngưỡng 0,005 ≈ một sai số chuẩn theo seed với SD dư 0,0081 và 3 s
 |---|---|---|---|
 | 2026-10-16 | Precision Phase 1: chốt **fp16** (thay bf16) | T4 = SM 7.5, không có bf16 gốc. `torch.cuda.is_bf16_supported()` báo True nhầm (chỉ kiểm CUDA version). Benchmark thật: bf16 mô phỏng 21,9s/lượt, fp16 6,7s/lượt → **3,27× nhanh hơn**. Phase 1 dùng seed mới nên không so với dữ liệu cũ | Không ảnh hưởng kết luận; mọi lượt Phase 1 dùng fp16 nhất quán; `resolve_precision` tự chọn fp16 khi compute capability < 8.0 |
 | 2026-10-16 | VSMEC: dự kiến tải từ github.com/uitnlp/UIT-VSMEC, upload Kaggle Dataset riêng | `uitnlp/UIT-VSMEC` không có trên HF Hub (401); `glue/sst2` cũng vậy | Nếu không kịp trước 11-04: fallback `SetFit/ag_news` cho B2-B4, ghi limitations |
-
+| 2026-10-16 | Full FT dùng LR = 2e-5 (không dùng 2e-4 của LoRA) | LR 2e-4 làm full FT collapse (F1=0.22); LR 2e-5 ổn định, NLL 0.202 tốt hơn 5e-5 (0.224) | 5 lượt full FT LR 2e-4 ghi vào mục 9 là hỏng |
+| 2026-10-16 | Full FT reference dùng LR = 2e-5 (không 2e-4 của LoRA) | LR 2e-4 làm full FT collapse (F1=0.22). LR 2e-5 ổn định (F1=0.85), NLL tốt hơn LR 5e-5 (0.202 vs 0.224) | 5 lượt full FT LR 2e-4 ghi là hỏng, không dùng |
+| 2026-10-16 | Reference: Head-only (8 seed) = 0.5879, Full FT LR 2e-5 (5 seed) = 0.8486 | Trần/sàn cho so sánh LoRA | Không ảnh hưởng kết luận H1–H3 |
 ---
 
 ## 10. Kết quả được phép diễn giải trước
