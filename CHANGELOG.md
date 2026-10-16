@@ -3,7 +3,7 @@
 ## 2026-10-15 — Cycle 2b (Đổi hướng đề tài và thống nhất tài liệu)
 
 ### Quyết định
-Đề tài chuyển từ "capacity need của lớp/module có đo được, ổn định, chuyển giao được không?" sang "rank LoRA toàn cục ảnh hưởng gì đến Macro-F1 và NLL, và có phụ thuộc ngân sách huấn luyện (3 so với 6 epoch) không?". Đây là thay đổi ngoài kế hoạch gốc, không phải nhánh dự phòng. Lý do, so sánh chi tiết, ánh xạ giả thuyết và việc còn mở: xem `docs/pivot_v2.md`. Trạng thái: đề xuất nội bộ, chưa được TS. Huyên duyệt.
+Đề tài chuyển từ "capacity need của lớp/module có đo được, ổn định, chuyển giao được không?" sang "rank LoRA toàn cục ảnh hưởng gì đến Macro-F1 và NLL, và có phụ thuộc ngân sách huấn luyện (3 so với 6 epoch) không?". Đây là thay đổi ngoài kế hoạch gốc, không phải nhánh dự phòng. Lý do, so sánh chi tiết, ánh xạ giả thuyết và việc còn mở: xem `docs/pivot_v2.md`. Trạng thái: đề xuất nội bộ.
 
 ### Căn cứ
 - Pilot C1 (125 lượt): G1 NO-GO ở mức lớp (power 4,6%).

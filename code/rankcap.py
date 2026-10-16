@@ -69,12 +69,31 @@ def build_patterns(model, layer_ranks: Dict[int, int] | Sequence[int], base_r: i
     return targets, rank_pattern, alpha_pattern
 
 
-def lora_config(model, layer_ranks, base_r=8, type_ranks=None, dropout=0.1, alpha_ratio=2.0):
+def lora_config(model, layer_ranks, base_r=8, type_ranks=None, dropout=0.1, alpha_ratio=2.0,
+                alpha_mode="2r"):
+    """Build a LoRA config.
+
+    alpha_mode:
+      '2r'         alpha_i = 2 * r_i (default v1-v3)
+      'fixed:N'    alpha_i = N for every module (e.g. 'fixed:16')
+      'rslora'     alpha_i = 2 * r_i AND use_rslora=True (Kalajdzievski 2023)
+    """
     from peft import LoraConfig, TaskType
     targets, rank_pattern, alpha_pattern = build_patterns(model, layer_ranks, base_r, type_ranks, alpha_ratio)
-    return LoraConfig(task_type=TaskType.SEQ_CLS, r=base_r, lora_alpha=int(round(alpha_ratio * base_r)),
+    use_rslora = False
+    if alpha_mode == "2r":
+        pass
+    elif alpha_mode == "rslora":
+        use_rslora = True
+    elif alpha_mode.startswith("fixed:"):
+        n = int(alpha_mode.split(":", 1)[1])
+        alpha_pattern = {k: n for k in alpha_pattern}
+    else:
+        raise ValueError(f"unknown alpha_mode {alpha_mode!r}")
+    return LoraConfig(task_type=TaskType.SEQ_CLS, r=base_r,
+                      lora_alpha=int(round(alpha_ratio * base_r)),
                       lora_dropout=dropout, target_modules=targets, rank_pattern=rank_pattern,
-                      alpha_pattern=alpha_pattern, bias="none")
+                      alpha_pattern=alpha_pattern, bias="none", use_rslora=use_rslora)
 
 
 def count_lora_params(peft_model) -> int:

@@ -1,25 +1,41 @@
-"""run_pilot.py v2 - train one LoRA configuration per job and append its metrics to a CSV.
+﻿"""run_pilot.py v3 - train one LoRA configuration per job and append its metrics to a CSV.
 
-What is new in v2 (everything else behaves like v1)
-  * --sweep_global   : the SAME rank r on all 12 layers x 6 module types (global rank sweep).
-  * --epochs_list / --lr_list : several training budgets / learning rates in one invocation.
-  * --shard i/n      : deterministic split BY SEED (complete designs per GPU) so two GPUs can run two processes
-                       (CUDA_VISIBLE_DEVICES=0 ... --shard 0/2 --out a.csv ; =1 ... --shard 1/2 --out b.csv).
-  * Every run is evaluated on BOTH calibration.csv and the primary eval file (test.csv by default);
-    selection of anything (LR, epoch, temperature) must use calibration only.
-  * Per-epoch calibration metrics -> epochwise/<run_id>.json ; final logits + gold labels of both
-    splits -> logits/<run_id>.npz (needed for temperature scaling / ECE / Paper B).
-  * run_id (unique per seed/config/rank/epochs/lr) is the resume key, so runs with different
-    budgets can never be skipped or overwritten by mistake.
-  * Reproducibility metadata: precision, class_weight, git hash, library versions (<out>.meta.jsonl).
-  * --precision {auto,bf16,fp16,fp32}; auto == v1 behaviour (bf16 if torch says it is supported).
-  * --class_weight {none,balanced}; none == what v1 really did (plain cross-entropy).
-  * --dry_run prints the job list without training.
+What is new in v3 (everything else behaves like v2)
+  * --method {lora,full,head}  : LoRA (default), full fine-tuning, or classifier-head-only (floor).
+  * --alpha_mode {2r,fixed:N,rslora} : alpha = 2r (default), alpha = N constant, or rsLoRA scaling.
+  * --data_fraction F          : stratified subsample of the training set (F in (0,1]); F goes into run_id.
+  * delta-W statistics (effective rank, stable rank, Frobenius norm) computed BEFORE del model,
+    written to deltaw/<run_id>.json. Uses QR of B and A^T so no d x k matrix is ever materialised.
+  * resolve_precision: 'auto' now picks fp16 on GPUs without native bf16 (compute capability < 8.0);
+    the old v2 behaviour (bf16 emulated on T4) was a PyTorch is_bf16_supported() false positive.
+  * New CSV columns: method, alpha_mode, data_fraction, n_train.
+
+What was already in v2
+  * --sweep_global, --epochs_list / --lr_list, --shard i/n, dual eval (cal + primary),
+    per-epoch epochwise/<run_id>.json, logits/<run_id>.npz, run_id resume, meta.jsonl,
+    --class_weight {none,balanced}, --precision {auto,bf16,fp16,fp32}, --dry_run.
 
 Examples
-  python run_pilot.py --data_dir data/vsfc_sent --out results/global_gpu0.csv --cell G1 \
-      --sweep_global --ranks 1 4 16 32 --epochs_list 3 6 --seeds 200 201 202 203 204 205 206 207 --shard 0/2
-  python run_pilot.py ... --config type --module_type intermediate.dense --rank 32 --seed 105
+  # Phase 1a, GPU 0 of 2, 16 seeds split into 2 batches of 8
+  CUDA_VISIBLE_DEVICES=0 python run_pilot.py --data_dir data/vsfc_sent --out results/global_gpu0.csv \
+      --cell R1 --sweep_global --ranks 1 4 8 16 32 --epochs_list 3 6 \
+      --seeds 200 201 202 203 204 205 206 207 --shard 0/2 --precision fp16
+
+  # LR tuning on calibration only (3 seeds x 5 ranks x 4 LRs, 6 epochs)
+  python run_pilot.py --data_dir data/vsfc_sent --out results/tuning.csv --cell TUNE \
+      --sweep_global --ranks 1 4 8 16 32 --lr_list 1e-4 2e-4 5e-4 1e-3 --epochs_list 6 \
+      --seeds 400 401 402 --precision fp16 --eval_file calibration.csv
+
+  # Floor / ceiling reference
+  python run_pilot.py ... --method head  --seeds 200 201 202 203 204 205 206 207 --epochs 6
+  python run_pilot.py ... --method full  --seeds 200 201 202 203 204 --epochs 6
+
+  # alpha sensitivity (Phase C)
+  python run_pilot.py ... --alpha_mode fixed:16 --ranks 1 8 32 --seeds 200 201 202 203 204
+  python run_pilot.py ... --alpha_mode rslora  --ranks 1 8 32 --seeds 200 201 202 203 204
+
+  # data fraction (Phase 3)
+  python run_pilot.py ... --data_fraction 0.2 --ranks 1 8 32 --seeds 200 201 202 203 204 205 206 207
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -38,9 +54,9 @@ MODULE_TYPES = list(rankcap.MODULE_SUFFIXES)
 
 CSV_COLUMNS = [
     "run_id", "cell", "seed", "config", "layer", "rank", "epochs", "lr", "batch_size", "max_len",
-    "precision", "class_weight", "limit_train",
-    "macro_f1", "f1_neg", "f1_neu", "f1_pos", "f1_per_class", "accuracy", "nll",      # primary eval file
-    "cal_macro_f1", "cal_accuracy", "cal_nll",                                          # calibration.csv
+    "precision", "class_weight", "limit_train", "method", "alpha_mode", "data_fraction", "n_train",
+    "macro_f1", "f1_neg", "f1_neu", "f1_pos", "f1_per_class", "accuracy", "nll",
+    "cal_macro_f1", "cal_accuracy", "cal_nll",
     "lora_params", "seconds", "eval_file", "git",
 ]
 
@@ -57,6 +73,21 @@ def load_csv(path):
     return [r["text"] for r in rows], [int(r["label"]) for r in rows]
 
 
+def stratified_subsample(texts, labels, fraction, seed):
+    """Keep round(fraction * n_k) rows per class, seed-dependent. Always keeps at least 1 per class."""
+    if fraction >= 1.0:
+        return texts, labels
+    rng = np.random.default_rng(seed)
+    y = np.asarray(labels)
+    keep = np.zeros(len(y), dtype=bool)
+    for k in np.unique(y):
+        idx = np.where(y == k)[0]
+        n_k = max(1, int(round(fraction * len(idx))))
+        keep[rng.choice(idx, size=n_k, replace=False)] = True
+    sel = np.where(keep)[0]
+    return [texts[i] for i in sel], [int(y[i]) for i in sel]
+
+
 def tokenize_split(tok, texts, labels, max_len):
     enc = tok(texts, truncation=True, max_length=max_len, padding=False)
     return [{"input_ids": ids, "attention_mask": am, "labels": y}
@@ -64,30 +95,39 @@ def tokenize_split(tok, texts, labels, max_len):
 
 
 def make_loader(tok, items, bs, shuffle, seed):
-    """Dynamic padding: each batch is padded to its own longest sequence."""
     def collate(batch):
         ys = torch.tensor([b["labels"] for b in batch])
         pad = tok.pad([{"input_ids": b["input_ids"], "attention_mask": b["attention_mask"]} for b in batch],
                       padding=True, return_tensors="pt")
         return pad["input_ids"], pad["attention_mask"], ys
-
     g = torch.Generator(); g.manual_seed(seed)
     return DataLoader(items, batch_size=bs, shuffle=shuffle, generator=g if shuffle else None,
                       collate_fn=collate)
 
 
 def resolve_precision(device, choice):
-    """Return (name, autocast dtype or None). 'auto' reproduces v1: bf16 whenever torch reports support."""
+    """Return (name, autocast dtype or None).
+
+    v3 change: 'auto' picks fp16 on GPUs without NATIVE bf16 (compute capability < 8.0, e.g. T4/Turing).
+    Reason: torch.cuda.is_bf16_supported() returns True on T4 (it only checks the CUDA version), so v2
+    silently ran EMULATED bf16 and lost ~1.5-2x throughput. Emulated bf16 is correct numerically, so
+    existing v2 results are still valid; we simply do not want to keep paying the cost in Phase 1.
+    Never mix precisions inside one comparison (see docs/analysis_plan_v2.md section 2.1).
+    """
+    if device != "cuda":
+        return ("bf16", None) if choice == "auto" else (choice, None)
+    cap_major = torch.cuda.get_device_capability(0)[0]
+    native_bf16 = cap_major >= 8
     if choice == "auto":
-        choice = "bf16" if (device == "cuda" and torch.cuda.is_bf16_supported()) else "fp32"
+        choice = "bf16" if native_bf16 else "fp16"
     if choice == "bf16":
-        if device == "cuda" and torch.cuda.get_device_capability(0)[0] < 8:
-            print("WARNING: bf16 requested on a GPU without native bf16 (e.g. T4): it is emulated and slow. "
-                  "Consider --precision fp16, but never mix precisions inside one comparison.", flush=True)
+        if not native_bf16:
+            print("WARNING: bf16 requested on a GPU without native bf16 (compute capability "
+                  f"{torch.cuda.get_device_capability(0)}). It will be EMULATED and slow. "
+                  "Prefer --precision fp16 for Phase 1 (never mix precisions inside one comparison).",
+                  flush=True)
         return "bf16", torch.bfloat16
     if choice == "fp16":
-        if device != "cuda":
-            raise SystemExit("--precision fp16 needs a CUDA device")
         return "fp16", torch.float16
     return "fp32", None
 
@@ -150,7 +190,7 @@ def train_and_eval(model, train_dl, cal_dl, eval_dl, epochs, lr, device, amp_dty
             torch.nn.utils.clip_grad_norm_(params, clip)
             scaler.step(opt); scaler.update(); sched.step(); opt.zero_grad(set_to_none=True)
             run_loss += float(loss.detach()); nb += 1
-        rec = {"epoch": ep, "train_loss": run_loss / max(1, nb)}
+        rec = {"epoch": ep, "train_loss": run_loss / max(1, nb), "lr": float(opt.param_groups[0]["lr"])}
         last = ep == epochs
         if cal_dl is not None and (epoch_eval in ("cal", "both") or last):
             m, lg, gd = evaluate(model, cal_dl, device, amp_dtype, K)
@@ -164,13 +204,59 @@ def train_and_eval(model, train_dl, cal_dl, eval_dl, epochs, lr, device, amp_dty
     return final, epochwise
 
 
+# ------------------------------------------------------------------- delta-W statistics
+def delta_w_stats(peft_model):
+    """Per-LoRA-layer statistics of delta_W = B @ A.
+
+    Computed with QR of B (d x r) and A^T (k x r) so only an r x r matrix is factorised:
+        B = Qb Rb ,  A = Ra^T Qa^T  =>  delta_W = Qb (Rb Ra^T) Qa^T
+        singular values of delta_W == singular values of Rb @ Ra^T.
+    Returns {module_name: {effective_rank, stable_rank, fro_norm, rank, singular_values}}.
+    """
+    try:
+        from peft.tuners.lora import Linear as LoraLinear
+    except Exception:
+        try:
+            from peft.tuners.lora.layer import Linear as LoraLinear
+        except Exception:
+            return {}
+    stats = {}
+    for name, mod in peft_model.named_modules():
+        if not isinstance(mod, LoraLinear):
+            continue
+        try:
+            A = mod.lora_A["default"].weight.detach().float().cpu()   # (r, k)
+            B = mod.lora_B["default"].weight.detach().float().cpu()   # (d, r)
+        except (KeyError, AttributeError):
+            continue
+        if B.numel() == 0 or A.numel() == 0:
+            continue
+        _, Rb = torch.linalg.qr(B)        # Rb: (r, r)
+        _, Ra = torch.linalg.qr(A.T)      # Ra: (r, r)
+        M = Rb @ Ra.T                     # (r, r)
+        s = torch.linalg.svdvals(M).clamp_min(1e-12)
+        p = s / s.sum()
+        stats[name] = {
+            "effective_rank": float(torch.exp(-(p * torch.log(p)).sum())),
+            "stable_rank": float((s.sum() ** 2) / (s.max() ** 2)),
+            "fro_norm": float((s ** 2).sum().sqrt()),
+            "rank": int(s.numel()),
+            "singular_values": [float(x) for x in s.tolist()],
+        }
+    return stats
+
+
 # ------------------------------------------------------------------------------- jobs
-def make_run_id(cell, seed, cfg, layer, rank, epochs, lr):
-    return f"{cell}__s{seed}__{cfg.replace(':', '-')}__L{layer}__r{rank}__e{epochs}__lr{lr:g}"
+def make_run_id(cell, seed, cfg, layer, rank, epochs, lr, method="lora", alpha_mode="2r", data_fraction=1.0):
+    """Backward compatible with v2 run_id: only non-default method / alpha_mode / fraction are appended."""
+    base = f"{cell}__s{seed}__{cfg.replace(':', '-')}__L{layer}__r{rank}__e{epochs}__lr{lr:g}"
+    if method != "lora":       base += f"__m{method}"
+    if alpha_mode != "2r":     base += f"__a{alpha_mode.replace(':', '')}"
+    if data_fraction < 1.0:    base += f"__df{data_fraction:g}"
+    return base
 
 
 def ranks_for(cfg, layer, rank, base_rank, L=12):
-    """Return (layer_ranks, type_ranks) for a config name."""
     layer_ranks, type_ranks = [base_rank] * L, None
     if cfg == "layer":
         layer_ranks[layer] = rank
@@ -185,7 +271,6 @@ def ranks_for(cfg, layer, rank, base_rank, L=12):
 
 
 def build_jobs(args):
-    """Ordered list of job dicts. Order: seed -> epochs -> lr -> configs, so partial results are balanced."""
     seeds = args.seeds or [args.seed]
     epochs_list = args.epochs_list or [args.epochs]
     lr_list = args.lr_list or [args.lr]
@@ -215,15 +300,17 @@ def build_jobs(args):
                     elif args.config == "type": add(f"type:{args.module_type}", -1, args.rank)
                     elif args.config == "global": add("global", -1, args.rank)
     for j in jobs:
-        j["run_id"] = make_run_id(args.cell, j["seed"], j["cfg"], j["layer"], j["rank"], j["epochs"], j["lr"])
+        j["run_id"] = make_run_id(args.cell, j["seed"], j["cfg"], j["layer"], j["rank"], j["epochs"], j["lr"],
+                                  method=args.method, alpha_mode=args.alpha_mode,
+                                  data_fraction=args.data_fraction)
     if args.shard:
         i, n = (int(x) for x in args.shard.split("/"))
         assert 0 <= i < n, "--shard must be i/n with 0 <= i < n"
         seeds_all = list(dict.fromkeys(j["seed"] for j in jobs))
-        if len(seeds_all) >= n:   # preferred: shard by SEED so every shard holds complete designs
+        if len(seeds_all) >= n:
             mine = {sd for k, sd in enumerate(seeds_all) if k % n == i}
             jobs = [j for j in jobs if j["seed"] in mine]
-        else:                     # fewer seeds than shards: fall back to job index
+        else:
             jobs = [j for k, j in enumerate(jobs) if k % n == i]
     ids = [j["run_id"] for j in jobs]
     assert len(ids) == len(set(ids)), "duplicate run_id in job list"
@@ -235,20 +322,45 @@ def read_done(path):
     with open(path, encoding="utf-8-sig", newline="") as f:
         rd = csv.DictReader(f)
         if rd.fieldnames and "run_id" not in rd.fieldnames:
-            raise SystemExit(f"{path} has no run_id column (v1 file). Use a NEW --out file for v2 runs.")
+            raise SystemExit(f"{path} has no run_id column (v1 file). Use a NEW --out file for v3 runs.")
         return {r["run_id"] for r in rd}
+
+
+# -------------------------------------------------------------------------------- model
+def build_model(args, K, job):
+    """Return (model, n_trainable_params, peft_model_or_None)."""
+    from transformers import AutoModelForSequenceClassification
+    set_seed(job["seed"])
+    base = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=K)
+
+    if args.method == "full":
+        n = sum(p.numel() for p in base.parameters() if p.requires_grad)
+        return base, n, None
+
+    if args.method == "head":
+        for p in base.parameters():
+            p.requires_grad = False
+        trainable = 0
+        for name, p in base.named_parameters():
+            if name.startswith("classifier.") or name.startswith("score."):
+                p.requires_grad = True
+                trainable += p.numel()
+        if trainable == 0:
+            raise SystemExit("--method head: could not locate `classifier.` or `score.` params")
+        return base, trainable, None
+
+    # lora (default)
+    from peft import get_peft_model
+    layer_ranks, type_ranks = ranks_for(job["cfg"], job["layer"], job["rank"], args.base_rank)
+    cfg = rankcap.lora_config(base, layer_ranks, base_r=args.base_rank, type_ranks=type_ranks,
+                              alpha_mode=args.alpha_mode)
+    peft_model = get_peft_model(base, cfg)
+    return peft_model, rankcap.count_lora_params(peft_model), peft_model
 
 
 # -------------------------------------------------------------------------------- run
 def run_one(args, tok, K, loaders, job, class_weights, precision):
-    from peft import get_peft_model
-    from transformers import AutoModelForSequenceClassification
-    set_seed(job["seed"])  # same seed => same classifier-head init and LoRA init for every config
-    model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=K)
-    layer_ranks, type_ranks = ranks_for(job["cfg"], job["layer"], job["rank"], args.base_rank)
-    model = get_peft_model(model, rankcap.lora_config(model, layer_ranks, base_r=args.base_rank,
-                                                      type_ranks=type_ranks))
-    n_params = rankcap.count_lora_params(model)
+    model, n_params, peft_model = build_model(args, K, job)
     train_dl = make_loader(tok, loaders["train"], args.batch_size, True, job["seed"])
     cal_dl = make_loader(tok, loaders["cal"], 64, False, 0) if loaders["cal"] is not None else None
     eval_dl = make_loader(tok, loaders["eval"], 64, False, 0)
@@ -257,9 +369,10 @@ def run_one(args, tok, K, loaders, job, class_weights, precision):
     final, epochwise = train_and_eval(model, train_dl, cal_dl, eval_dl, job["epochs"], job["lr"], args.device,
                                       amp_dtype, K, class_weights, args.epoch_eval)
     sec = time.time() - t0
-    del model
+    dw = delta_w_stats(peft_model) if peft_model is not None else {}
+    del model, peft_model
     if args.device == "cuda": torch.cuda.empty_cache()
-    return final, epochwise, n_params, sec
+    return final, epochwise, n_params, sec, dw
 
 
 def main():
@@ -273,28 +386,34 @@ def main():
     ap.add_argument("--lr", type=float, default=2e-4); ap.add_argument("--lr_list", type=float, nargs="*")
     ap.add_argument("--batch_size", type=int, default=32)
     ap.add_argument("--max_len", type=int, default=128)
-    ap.add_argument("--eval_file", default="test.csv", help="primary evaluation file in data_dir")
-    ap.add_argument("--cal_file", default="calibration.csv", help="calibration file (skipped if missing)")
+    ap.add_argument("--eval_file", default="test.csv")
+    ap.add_argument("--cal_file", default="calibration.csv")
     ap.add_argument("--epoch_eval", choices=["none", "cal", "both"], default="cal")
     ap.add_argument("--precision", choices=["auto", "bf16", "fp16", "fp32"], default="auto")
     ap.add_argument("--class_weight", choices=["none", "balanced"], default="none")
-    ap.add_argument("--limit_train", type=int, default=0, help="debug only: use the first N training rows")
+    ap.add_argument("--limit_train", type=int, default=0)
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     ap.add_argument("--seed", type=int, default=100); ap.add_argument("--seeds", type=int, nargs="*")
     ap.add_argument("--config", choices=["baseline", "layer", "type", "group", "global"], default="baseline")
     ap.add_argument("--layer", type=int); ap.add_argument("--group", choices=list(GROUPS))
     ap.add_argument("--module_type"); ap.add_argument("--rank", type=int)
-    ap.add_argument("--sweep", action="store_true", help="per-layer sweep")
-    ap.add_argument("--sweep_groups", action="store_true"); ap.add_argument("--sweep_types", action="store_true")
-    ap.add_argument("--sweep_global", action="store_true")
-    ap.add_argument("--baseline", action="store_true", help="also run uniform r=base_rank per (seed, epochs, lr)")
-    ap.add_argument("--ranks", type=int, nargs="*", default=[1, 32])
+    ap.add_argument("--sweep", action="store_true"); ap.add_argument("--sweep_groups", action="store_true")
+    ap.add_argument("--sweep_types", action="store_true"); ap.add_argument("--sweep_global", action="store_true")
+    ap.add_argument("--baseline", action="store_true")
+    ap.add_argument("--ranks", type=int, nargs="*", default=[1, 4, 8, 16, 32])  # v3: rank 8 by default
     ap.add_argument("--layers", type=int, nargs="*", default=list(range(12)))
     ap.add_argument("--groups", nargs="*", default=list(GROUPS))
     ap.add_argument("--module_types", nargs="*")
-    ap.add_argument("--shard", default=None, help="i/n : split by seed (k-th seed goes to shard k %% n); by job index if fewer seeds than shards")
+    ap.add_argument("--shard", default=None)
+    # --- v3
+    ap.add_argument("--method", choices=["lora", "full", "head"], default="lora")
+    ap.add_argument("--alpha_mode", default="2r",
+                    help="'2r' (default), 'fixed:N' (e.g. fixed:16), or 'rslora'")
+    ap.add_argument("--data_fraction", type=float, default=1.0,
+                    help="stratified subsample of training set, in (0,1]; the value enters run_id")
     ap.add_argument("--dry_run", action="store_true")
     args = ap.parse_args()
+    assert 0 < args.data_fraction <= 1.0, "--data_fraction must be in (0,1]"
 
     jobs = build_jobs(args)
     done = read_done(args.out)
@@ -312,30 +431,46 @@ def main():
     except Exception:
         peft_v = "?"
     tok = AutoTokenizer.from_pretrained(args.model)
-    tr = load_csv(os.path.join(args.data_dir, "train.csv"))
-    if args.limit_train: tr = (tr[0][:args.limit_train], tr[1][:args.limit_train])
+
+    # --- training data (with optional stratified fraction)
+    tr_texts, tr_labels = load_csv(os.path.join(args.data_dir, "train.csv"))
+    if args.limit_train:
+        tr_texts, tr_labels = tr_texts[:args.limit_train], tr_labels[:args.limit_train]
+    # data_fraction uses the FIRST job's seed to define the subsample (kept identical across the whole invocation)
+    seed_for_fraction = jobs[0]["seed"] if jobs else args.seed
+    if args.data_fraction < 1.0:
+        n_before = len(tr_labels)
+        tr_texts, tr_labels = stratified_subsample(tr_texts, tr_labels, args.data_fraction, seed_for_fraction)
+        print(f"data_fraction={args.data_fraction}: kept {len(tr_labels)} / {n_before} train rows "
+              f"(seed {seed_for_fraction} for stratification)", flush=True)
+
     ev = load_csv(os.path.join(args.data_dir, args.eval_file))
     cal_path = os.path.join(args.data_dir, args.cal_file)
     cal = load_csv(cal_path) if os.path.exists(cal_path) else None
     if cal is None: print(f"WARNING: {cal_path} not found, calibration metrics will be empty", flush=True)
-    K = len(set(tr[1]))
-    loaders = {"train": tokenize_split(tok, *tr, args.max_len), "eval": tokenize_split(tok, *ev, args.max_len),
+    K = len(set(tr_labels))
+    loaders = {"train": tokenize_split(tok, tr_texts, tr_labels, args.max_len),
+               "eval": tokenize_split(tok, *ev, args.max_len),
                "cal": tokenize_split(tok, *cal, args.max_len) if cal is not None else None}
     class_weights = None
     if args.class_weight == "balanced":
-        cnt = np.bincount(tr[1], minlength=K).astype(float)
-        class_weights = torch.tensor(len(tr[1]) / (K * cnt), dtype=torch.float32)
+        cnt = np.bincount(tr_labels, minlength=K).astype(float)
+        class_weights = torch.tensor(len(tr_labels) / (K * cnt), dtype=torch.float32)
     precision = resolve_precision(args.device, args.precision)
     gh = git_hash()
 
     out_dir = os.path.dirname(os.path.abspath(args.out))
-    for sub in ("logits", "epochwise"): os.makedirs(os.path.join(out_dir, sub), exist_ok=True)
+    for sub in ("logits", "epochwise", "deltaw"):
+        os.makedirs(os.path.join(out_dir, sub), exist_ok=True)
     with open(args.out + ".meta.jsonl", "a", encoding="utf-8") as mf:
         mf.write(json.dumps({"time": time.strftime("%Y-%m-%d %H:%M:%S"), "git": gh, "torch": torch.__version__,
                              "transformers": transformers.__version__, "peft": peft_v, "model": args.model,
                              "device": args.device,
                              "gpu": torch.cuda.get_device_name(0) if args.device == "cuda" else "cpu",
+                             "compute_capability": list(torch.cuda.get_device_capability(0)) if args.device == "cuda" else None,
                              "precision": precision[0], "class_weight": args.class_weight,
+                             "method": args.method, "alpha_mode": args.alpha_mode,
+                             "data_fraction": args.data_fraction, "n_train": len(tr_labels),
                              "argv": sys.argv[1:]}) + "\n")
 
     new = not os.path.exists(args.out)
@@ -343,13 +478,14 @@ def main():
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
         if new: w.writeheader()
         for j in todo:
-            final, epochwise, n_params, sec = run_one(args, tok, K, loaders, j, class_weights, precision)
+            final, epochwise, n_params, sec, dw = run_one(args, tok, K, loaders, j, class_weights, precision)
             m, lg_e, gd_e = final["eval"]
             row = dict(run_id=j["run_id"], cell=args.cell, seed=j["seed"], config=j["cfg"], layer=j["layer"],
                        rank=j["rank"], epochs=j["epochs"], lr=j["lr"], batch_size=args.batch_size,
                        max_len=args.max_len, precision=precision[0], class_weight=args.class_weight,
-                       limit_train=args.limit_train, macro_f1=f"{m['macro_f1']:.6f}",
-                       accuracy=f"{m['accuracy']:.6f}", nll=f"{m['nll']:.6f}",
+                       limit_train=args.limit_train, method=args.method, alpha_mode=args.alpha_mode,
+                       data_fraction=args.data_fraction, n_train=len(tr_labels),
+                       macro_f1=f"{m['macro_f1']:.6f}", accuracy=f"{m['accuracy']:.6f}", nll=f"{m['nll']:.6f}",
                        f1_per_class=";".join(f"{x:.6f}" for x in m["per_class"]),
                        lora_params=n_params, seconds=f"{sec:.1f}", eval_file=args.eval_file, git=gh)
             if K == 3:
@@ -364,6 +500,9 @@ def main():
             np.savez_compressed(os.path.join(out_dir, "logits", j["run_id"] + ".npz"), **arrays)
             with open(os.path.join(out_dir, "epochwise", j["run_id"] + ".json"), "w", encoding="utf-8") as jf:
                 json.dump({"run_id": j["run_id"], "epochs": epochwise}, jf)
+            if dw:
+                with open(os.path.join(out_dir, "deltaw", j["run_id"] + ".json"), "w", encoding="utf-8") as df:
+                    json.dump({"run_id": j["run_id"], "layers": dw}, df)
             w.writerow(row); f.flush()
             print(f"{j['run_id']} f1={m['macro_f1']:.4f} nll={m['nll']:.4f} params={n_params} {sec:.0f}s",
                   flush=True)
