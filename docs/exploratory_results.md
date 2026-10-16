@@ -108,3 +108,37 @@ UIT-VSFC sentiment: train 12.780 (neg 5.986 / neu 522 / pos 6.272), calibration 
 ## 9. Vấn đề kỹ thuật đã gặp (Kaggle)
 
 `torchao 0.10.0` xung đột với peft ≥ 0,16 (gỡ bằng `pip uninstall -y torchao`); đường dẫn bị lồng `code/code/` khi clone vào `/kaggle/working/code`; `/kaggle/working/` bị xóa khi hết phiên (lưu kết quả ra Dataset sau mỗi đợt); README từng bị mojibake do ghi bằng Notepad (dùng Python với `encoding='utf-8'`).
+
+## 10. Tune LR theo rank (seed 400, 1 seed, khám phá)
+
+Thiết kế: 5 rank × 4 LR × 1 seed × 6 epoch = 20 lượt, chỉ trên calibration (chưa đủ 3 seed theo kế hoạch).
+
+### LR tối ưu theo rank (1 seed)
+
+| Rank | best_lr | F1 | second_best_lr | F1 |
+|---|---|---|---|---|
+| 1 | 2e-4 | 0.8072 | 1e-3 | 0.8039 |
+| 4 | 1e-3 | 0.8316 | 5e-4 | 0.8197 |
+| 8 | 1e-4 | 0.8158 | 2e-4 | 0.8035 |
+| 16 | 1e-4 | 0.8096 | 5e-4 | 0.8129 |
+| 32 | 1e-4 | 0.8201 | 2e-4 | 0.8140 |
+
+**Cổng A: LR tối ưu khác nhau giữa các rank** ({1e-4, 2e-4, 1e-3}) → xác nhận cần LR theo rank cho Phase 2.
+
+### Collapse (diverge)
+
+3 cấu hình collapse (F1 = 0.2207 = majority class):
+- rank 16, LR 1e-3
+- rank 32, LR 5e-4
+- rank 32, LR 1e-3
+
+Loss curve xác nhận:
+- rank 16 LR 1e-3: 0.50 → 0.84 qua 6 epoch
+- rank 32 LR 5e-4: 0.47 → 0.83
+- rank 32 LR 1e-3: 0.76 → 0.84
+
+→ **Tương tác rank × LR**: rank lớn cần LR nhỏ hơn. Rank nhỏ (1–8) chịu LR cao hơn. Bổ sung vào giả thuyết H3 (rank × epoch) một chiều mới.
+
+### Hành động
+- Chạy seed 401, 402 (ngày mai) để đủ 3 seed → chốt LR theo rank chính thức
+- Ghi vào limitations: "LR ≥ 5e-4 không ổn định với rank ≥ 16"
