@@ -119,3 +119,22 @@
 | Họ xác nhận | H1 (TOST δ = 0,01 trên F1), H2 (NLL tăng), H3 (tương tác rank × epoch); Holm m = 3 |
 | Chỉ số chính | Macro-F1 và NLL không trọng số trên test |
 | Precision | bf16 (còn mở: T4 không có bf16 gốc) |
+
+## Phase 1 baseline (2026-10-16, sau benchmark)
+
+| Mục | Giá trị |
+|---|---|
+| Rank set | {1, 4, 8, 16, 32}, global |
+| LR | Tune theo rank trên calibration (lưới {1e-4, 2e-4, 5e-4, 1e-3}, seed 400-402) |
+| Ngân sách | 3 và 6 epoch (Phase 1a); 10, 20%, 50% (Phase 3) |
+| **Precision** | **fp16** — benchmark 2026-10-16: bf16 21,9s vs fp16 6,7s (3,27×) trên T4 SM 7.5 |
+| Method | lora (mặc định), full (trần), head (sàn) |
+| Alpha mode | 2r (mặc định), fixed:16, rslora (độ nhạy, mức C) |
+| Seed R1 | 200-215 |
+| Seed tuning | 400-402 |
+| Seed thử σ | 500-502 |
+| Cell R1 | UIT-VSFC sentiment × XLM-R-base |
+| Cell B1 | VSFC × ViSoBERT/PhoBERT |
+| Cell B2 | VSMEC × XLM-R-base (fallback: `SetFit/ag_news` nếu không kịp) |
+| Cell B4 | AG News × XLM-R-base |
+| Shard | split by seed: `--shard 0/2` → seed chẵn, `--shard 1/2` → seed lẻ |

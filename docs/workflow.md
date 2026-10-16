@@ -1,4 +1,5 @@
 ﻿# Workflow
+> **Mọi session Kaggle mới:** đọc và làm theo `docs/SETUP_KAGGLE.md` trước khi chạy bất kỳ cell nào.
 
 ## Cycle
 
