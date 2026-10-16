@@ -130,3 +130,47 @@ Các điểm sau đã được ghi nhận và xử lý ở mức thiết kế, n
 
 - **α = 2r làm rank dính với bước học:** độ nhạy α cần chạy sớm (mức C) để tách ảnh hưởng rank thuần túy khỏi scaling.
 
+
+## 9. Hạn chế mới phát hiện từ tune seed 400 (2026-10-17)
+
+### 9.1. Lưới LR chạm biên
+
+Kết quả tune seed 400 (thăm dò, 1 seed) cho thấy LR tối ưu nằm ở **biên lưới** cho 4/5 rank:
+
+| Rank | Tối ưu | Vị trí |
+|---|---|---|
+| 1 | 2e-4 | trong lưới |
+| 4 | 1e-3 | **biên trên** |
+| 8 | 1e-4 | **biên dưới** |
+| 16 | 1e-4 (sau quy tắc hòa) | **biên dưới** |
+| 32 | 1e-4 | **biên dưới** |
+
+Hệ quả: nếu không mở rộng lưới, kết luận "rank toàn cục không giúp ích" có thể sai vì lưới chưa bao phủ tối ưu thật của rank cao.
+
+**Xử lý đã đăng ký:** quy tắc mở rộng lưới một bước (5e-5 ở biên dưới, 2e-3 ở biên trên), ghi vào `analysis_plan_v2.0.md` mục 9 ngày 2026-10-17, **trước khi đọc kết quả seed 401–402 và trước R1**. Giới hạn: chỉ mở rộng **một bước**, không lặp.
+
+### 9.2. Ba lượt collapse ở seed 400 — tương tác rank × LR
+
+3/20 lượt tune seed 400 collapse (Macro-F1 calibration ≈ 0,2207, khớp dự đoán lớp đa số):
+
+| Rank | LR | F1 (cal) | NLL (cal) |
+|---|---|---|---|
+| 16 | 1e-3 | 0,2207 | ~0,837 |
+| 32 | 5e-4 | 0,2207 | ~0,837 |
+| 32 | 1e-3 | 0,2207 | ~0,837 |
+
+Đây là **bằng chứng cho tương tác rank × LR**: với α = 2r, rank cao có biên độ ΔW lớn hơn, không chịu được LR cao. Tương tác này không đăng ký trước cho tune seed 400, nhưng được báo cáo ở mục 7 (Phân tích thứ cấp) của kế hoạch v2.0 với nhãn "khám phá".
+
+**Xử lý:** 3 lượt collapse **giữ** trong bảng tuning và trong trung bình chọn LR (không loại bỏ). Định nghĩa "sập" (cal F1 < 0,25) đăng ký vào mục 9 ngày 2026-10-17, trước R1. Tỷ lệ sập theo (rank, LR) sẽ báo cáo ở phụ lục.
+
+### 9.3. Định nghĩa "sập" ra đời sau khi chạy seed 400
+
+Định nghĩa "sập" (< 0,25) được viết khi đã **thấy** 3 lượt collapse ở seed 400 — không phải quy tắc đăng ký từ trước. Đây là điểm yếu của hướng khám phá, không phải của R1.
+
+**Xử lý:** định nghĩa được ghi vào mục 9 của `analysis_plan_v2.0.md` **trước khi chạy R1**, kèm quy tắc xử lý ở R1 (giữ hay bỏ). Seed tune (400–402) là dữ liệu thăm dò, không phải dữ liệu xác nhận; seed R1 (200–215) chưa chạy.
+
+### 9.4. `--lr_map` patch sau khi biết seed 400
+
+`run_pilot.py` thêm `--lr_map` (LR per rank) ngày 2026-10-17, **sau** khi thấy seed 400 có LR tối ưu khác nhau giữa các rank. Đây là hạ tầng kỹ thuật, không phải thay đổi thiết kế — nhưng cần ghi để minh bạch.
+
+**Xử lý:** patch ghi vào CHANGELOG (Cycle 3b, commit `4148c0b`). Kiểm tra: `run_pilot.py` giữ nguyên logic huấn luyện giữa `6ef174b` (chạy seed 400) và các commit sau — chỉ thêm nhánh `if lr_map is not None`, không ảnh hưởng khi `lr_map=None` (backward compat).
