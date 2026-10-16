@@ -156,11 +156,25 @@ Theo `analysis_plan.md` mục 10 và `roadmap_v2.md` mục 8:
 
 | # | Việc | Ai quyết | Trạng thái |
 |---|---|---|---|
-| 1 | Tag `analysis-plan-v2.0` chính thức | Bạn (toàn quyền từ TS. Huyên) | 2026-10-17 |
-| 2 | Precision trên T4: chốt **fp16** | Bạn | 2026-10-16 (benchmark 3,27×) |
-| 3 | VSMEC: dùng github UIT hoặc fallback | Bạn | Chưa (cần trước 11-04) |
-| 4 | Chỉ số đánh giá chính: test | Bạn | Đã chốt |
-| 5 | Loss: CE không trọng số | Bạn | Đã chốt |
+| 1 | Tag `analysis-plan-v2.0` chính thức | Bạn (toàn quyền từ TS. Huyên) | ✅ 2026-10-16 (commit `9ce42ae`) |
+| 2 | Precision trên T4: chốt **fp16** | Bạn | ✅ 2026-10-16 (benchmark bf16 21,9s vs fp16 6,7s = 3,27×) |
+| 3 | VSMEC: dùng github UIT hoặc fallback `SetFit/ag_news` | Bạn | ⏳ cần trước 11-04 (mức L: B1, B2) |
+| 4 | Chỉ số đánh giá chính: test | Bạn | ✅ Đã chốt |
+| 5 | Loss: CE không trọng số (`--class_weight none`) | Bạn | ✅ Đã chốt |
+
+### Đã bổ sung trong mục 8 (2026-10-17)
+
+Các việc dưới đây xong trước khi chạy tune seed 401–402 và trước R1:
+
+| # | Việc | Trạng thái |
+|---|---|---|
+| 6 | OSF pre-registration public + addendum mục 9 | ✅ 2026-10-16 |
+| 7 | Patch `run_pilot.py` thêm `--lr_map` (LR per rank) | ✅ 2026-10-17 (commit `4148c0b`) |
+| 8 | Patch `analyze_tuning.py` UTF-8 stdout (Windows cp1252) | ✅ 2026-10-17 (commit `f5a76c2`) |
+| 9 | Chốt tên đề tài (Anh + Việt) | ✅ 2026-10-17 (mục 6) |
+| 10 | Quy tắc mở rộng lưới LR (mục 9 của `analysis_plan_v2.0.md`) | ✅ 2026-10-17 |
+| 11 | Định nghĩa lượt "sập" (cal F1 < 0,25) | ✅ 2026-10-17 |
+| 12 | De-dup shard tuning (seed 400 chỉ ở gpu0) | ✅ 2026-10-17 |
 
 ---
 
