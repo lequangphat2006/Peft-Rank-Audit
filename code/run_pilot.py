@@ -275,12 +275,31 @@ def build_jobs(args):
     epochs_list = args.epochs_list or [args.epochs]
     lr_list = args.lr_list or [args.lr]
     sweeps = args.sweep or args.sweep_groups or args.sweep_types or args.sweep_global
+    lr_map = None
+    if getattr(args, "lr_map", None):
+        with open(args.lr_map, encoding="utf-8") as f:
+            raw = json.load(f)
+        lr_map = {}
+        for k, v in raw.items():
+            if isinstance(v, dict):
+                v = v.get("best_lr")
+            if v is None:
+                continue
+            lr_map[int(k)] = float(v)
+        print(f"[run_pilot] lr_map loaded: {lr_map}")
+        lr_list = [None]  # dummy; actual LR per rank via add()
     jobs = []
     for s in seeds:
         for ep in epochs_list:
             for lr in lr_list:
                 def add(cfg, layer, rank):
-                    jobs.append(dict(seed=s, cfg=cfg, layer=layer, rank=rank, epochs=ep, lr=lr))
+                    if lr_map is not None:
+                        job_lr = lr_map.get(rank)
+                        if job_lr is None:
+                            return
+                    else:
+                        job_lr = lr
+                    jobs.append(dict(seed=s, cfg=cfg, layer=layer, rank=rank, epochs=ep, lr=job_lr))
                 if args.baseline or (not sweeps and args.config == "baseline"):
                     add("baseline", -1, args.base_rank)
                 if args.sweep:
@@ -384,6 +403,7 @@ def main():
     ap.add_argument("--base_rank", type=int, default=8)
     ap.add_argument("--epochs", type=int, default=3); ap.add_argument("--epochs_list", type=int, nargs="*")
     ap.add_argument("--lr", type=float, default=2e-4); ap.add_argument("--lr_list", type=float, nargs="*")
+    ap.add_argument("--lr_map", default=None, help="Path to JSON {rank: lr} or {rank: {best_lr: lr}}; per-rank LR, overrides --lr/--lr_list")
     ap.add_argument("--batch_size", type=int, default=32)
     ap.add_argument("--max_len", type=int, default=128)
     ap.add_argument("--eval_file", default="test.csv")

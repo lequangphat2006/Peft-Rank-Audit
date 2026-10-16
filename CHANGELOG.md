@@ -428,3 +428,31 @@ Per-seed group mean ΔF1 cho thấy:
 - **Đường dẫn double `code/code/`:** clone repo vào `/kaggle/working/code` → code nằm ở `/kaggle/working/code/code/`.
 - **Kaggle session reset:** `/kaggle/working/` bị xóa khi hết session. Chạy lại Cell 1–5 khi session mới.
 - **README bị mojibake:** dùng Python ghi file với `encoding='utf-8'` thay vì Notepad.
+
+## 2026-10-17 — Cycle 3b (Patch `run_pilot.py` cho LR per rank)
+
+### Thay đổi
+
+`code/run_pilot.py` thêm `--lr_map <path>` (JSON `{rank: lr}` hoặc `{rank: {"best_lr": lr}}`). Khi được cung cấp, mỗi rank dùng LR từ map thay vì `--lr`/`--lr_list`. Khi không cung cấp, hành vi cũ giữ nguyên (cross product ranks × lr_list).
+
+### Lý do
+
+Phase 1 cần chạy rank {1, 4, 8, 16, 32} với **LR khác nhau theo rank** (từ `tuning_decision.json`). Trước patch, `run_pilot.py` chỉ có `--lr` (1 giá trị) và `--lr_list` (cross product với ranks). Muốn chạy 1 lệnh duy nhất cho cả 5 rank cần thêm `--lr_map`.
+
+### Vị trí patch
+
+- Dòng ~386: thêm `ap.add_argument("--lr_map", ...)` sau `--lr_list`.
+- Hàm `build_jobs`: đọc `args.lr_map` (nếu có), gán `lr_map = {int(k): float(v["best_lr"])}`; set `lr_list = [None]` để vòng lặp ngoài chạy 1 lần.
+- Hàm `add()` inner: nếu `lr_map` có → tra `lr_map.get(rank)`; rank không có trong map → skip (không thêm job).
+
+### Test (local, 2026-10-17)
+
+- `py_compile` pass; `--help` hiển thị `--lr_map`.
+- Test với `_inbox/_test_decision.json` (5 rank từ seed 400): 5 jobs, mỗi rank có LR đúng.
+- Test backward compat (`lr_map=None`): 4 jobs cross product như cũ.
+
+### Ảnh hưởng
+
+- **Không ảnh hưởng** các lệnh tune cũ (không truyền `--lr_map` → hành vi giữ nguyên).
+- **Không ảnh hưởng** seed 400 cũ (chạy trước patch, `run_id` không đổi vì `run_pilot.py` không đổi giữa `6ef174b` và commit này ở đoạn tính `run_id`).
+- R1 (seed 200-215) sẽ dùng `--lr_map tuning_decision.json`.
