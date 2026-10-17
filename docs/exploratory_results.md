@@ -222,3 +222,26 @@ Macro-F1 calibration, seed 400, 6 epoch (từ `results/tuning/tuning_seed400.csv
 - Mở rộng lưới một bước: 2e-3 cho rank 1; 5e-5 cho rank 8, 32.
 - 9 lượt mới (3 rank × 3 seed).
 - Sau khi có kết quả, chốt `tuning_decision.json` chính thức.
+
+### 10.4. Kết quả Tune 3 seed — Vòng 2 (Mở rộng lưới)
+
+**Setup:** Chạy thêm 9 lượt (3 rank chạm biên × 3 seed) theo quy tắc mục 9. Tổng cộng 69 lượt.
+- Rank 1: thử 2e-3
+- Rank 8: thử 5e-5
+- Rank 32: thử 5e-5
+
+#### Kết quả chốt hạ (tuning_decision.json)
+
+| Rank | Best LR | Second Best | Trạng thái |
+|---|---|---|---|
+| 1 | **1e-3** | 2e-3 | Giữ biên trên (2e-3 không thắng) |
+| 4 | **5e-4** | 1e-3 | Trong lưới |
+| 8 | **1e-4** | 5e-4 | Giữ biên dưới (5e-5 không thắng) |
+| 16 | **2e-4** | 5e-4 | Trong lưới |
+| 32 | **5e-5** | 2e-4 | **Dịch chuyển xuống biên mới** |
+
+#### Đánh giá Cổng A
+
+- LR tối ưu trải rộng từ **5e-5 đến 1e-3**.
+- **Rank 32** đã dịch chuyển từ 1e-4 xuống 5e-5 sau khi mở rộng. Điều này chứng minh quy tắc mở rộng lưới (đăng ký trước) là cần thiết để tránh thiên vị rank cao.
+- **Kết luận:** Cổng A kích hoạt (a). Phase 2 (R1, seeds 200-215) sẽ dùng `tuning_decision.json` qua cờ `--lr_map` của `run_pilot.py`.
