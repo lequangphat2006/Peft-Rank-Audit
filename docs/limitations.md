@@ -187,4 +187,8 @@ Trong phân tích R1, nhánh robustness của H3 (sử dụng LR cố định 2e
 - Để khắc phục triệt để trong tương lai, nhánh robustness đủ 5 rank ở LR 2e-4 sẽ được chạy bổ sung (V1 - xem kế hoạch tiếp theo).
 ### 9.6. Độ nhạy của FP16 ở ngưỡng biên
 
-Thí nghiệm V5 (FP32) cho thấy hiện tượng sập ở LR=1e-3 là bản chất của tối ưu hóa. Tuy nhiên, ở LR=5e-4 với Rank 32, FP32 ổn định (F1=0.82) nhưng FP16 có seed bị sập (F1=0.22). Điều này cho thấy FP16 làm tăng tính bất ổn định ở ngưỡng biên. Kết quả chính (R1) dùng FP16 với LR đã tune an toàn (5e-5), nên không bị ảnh hưởng.
+Thí nghiệm V5 (FP32, 1 seed) cho thấy hiện tượng sập ở LR=1e-3 là bản chất của tối ưu hóa. Ở LR=5e-4, Rank 32 ổn định ở FP32. Tuy nhiên, do V5 mới chạy 1 seed (200) so với FP16 (seed 400-402), chưa thể kết luận chắc chắn về tác động của FP16. Cần thêm dữ liệu ghép cặp theo seed (V5b) để xác nhận. Kết quả chính (R1) dùng FP16 với LR an toàn (5e-5) nên không bị ảnh hưởng.
+
+### 9.7. H3 không bền vững với cách chọn LR (Thí nghiệm V1)
+
+Kết quả R1 cho thấy H3 có ý nghĩa (p_holm = 0.007) với tương tác rank × epoch. Tuy nhiên, thí nghiệm hậu kiểm V1 (16 lượt, 4 ranks, 3 epochs, LR cố định 2e-4) cho thấy khi LR được cố định, F1 của Rank 8 và 32 hồi phục hoàn toàn (từ 0.805/0.799 lên 0.827/0.842). Điều này chứng tỏ tương tác trong R1 phần lớn là do việc dùng LR của 6 epoch (đã tune) cho 3 epoch. Do đó, câu kết luận đúng là: **"Tương tác chưa bền vững với cách chọn LR"**, không phải "rank cao bị underfit ở 3 epoch".

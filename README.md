@@ -72,11 +72,11 @@ Dự án đã hoàn thành toàn bộ thực nghiệm xác nhận (R1, B1, B2) v
 
 *   **H1 (F1 Equivalence):** Tăng rank toàn cục từ 1 lên 32 **không cải thiện** Macro-F1 trên XLM-R/UIT-VSFC (TOST, p_holm = 0.016).
 *   **H2 (Calibration):** Tăng rank làm NLL **tệ đi** (p_holm = 0.014), ngay cả sau khi Temperature Scaling.
-*   **H3 (Training Budget):** Có tương tác rank × epoch (p_holm = 0.007). Ở 3 epoch, rank cao bị underfitting và F1 lớp Neutral sụt giảm. Ở 6 epoch, Rank 1 đuổi kịp Rank 32.
+*   **H3 (Training Budget):** Có tương tác rank × epoch (p_holm = 0.007) ở nhánh LR per rank. Tuy nhiên, phân tích hậu kiểm V1 cho thấy tương tác này **không bền vững với cách chọn LR** (xem chi tiết trong Limitations).
 *   **Robustness (B1, B2):**
     *   **B1 (PhoBERT):** Tăng rank *có* cải thiện F1 (+0.019), nhưng NLL tệ đi rất mạnh (+0.044).
     *   **B2 (AG News):** F1 tăng rất nhẹ (+0.009, CI [+0.006, +0.012]) và NLL tăng không đáng kể. Hiệu ứng dương nhưng nằm sát ngưỡng tương đương.
-*   **Adaptive Rank Baseline:** AdaLoRA (budget 576) chỉ đạt F1 ~0.73, **thua xa** LoRA Global Rank 8 (F1 ~0.834) với cùng ngân sách.
+*   **Adaptive Rank Baseline:** AdaLoRA (budget 576) chỉ đạt F1 ~0.73, thấp hơn đáng kể so với LoRA Global Rank 8 (F1 ~0.834) trong thử nghiệm sơ bộ (chưa tune LR cho AdaLoRA).
 
 ## Cấu trúc repo
 
