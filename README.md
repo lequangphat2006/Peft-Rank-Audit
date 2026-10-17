@@ -41,11 +41,13 @@ Các phương pháp phân bổ rank thích ứng (AdaLoRA, IGU-LoRA, BaRA, StatL
 | Đổi hướng sang rank toàn cục | ✅ | 2026-10-15 |
 | Kế hoạch phân tích v2.0 (tag `analysis-plan-v2.0`) | ✅ | 2026-10-16 |
 | **OSF pre-registration public (DOI 10.17605/OSF.IO/A2MN5)** | ✅ | 2026-10-16 |
-| Tune seed 400 (20 lượt) | ✅ | 2026-10-16 |
-| Tune seed 401, 402 (chốt LR per rank) | ⏳ | 2026-10-17 |
-| Giai đoạn 1: global sweep R1 (16 seed, 160 lượt) | ⏳ | — |
-| Giai đoạn 2: cell B (B1, B2) | ⏳ | — |
-| Bản thảo | ⏳ | — |
+| Tune 3 seed (400-402, 69 lượt, mở rộng lưới) | ✅ | 2026-10-17 |
+| Giai đoạn 1: global sweep R1 (16 seed, 160 lượt) | ✅ | 2026-10-17 |
+| Giai đoạn 2: cell B1 (PhoBERT), B2 (AG News) | ✅ | 2026-10-17 |
+| Baseline: AdaLoRA (init 12, target 8, seed 200-202) | ✅ | 2026-10-17 |
+| Phân tích sâu (Neutral F1, AdaLoRA ranks) | ✅ | 2026-10-17 |
+| Outline Bản thảo | ✅ | 2026-10-17 |
+| Viết bản thảo (Drafting) | ⏳ | — |
 
 ---
 
@@ -62,6 +64,19 @@ Họ xác nhận H1–H3, hiệu chỉnh Holm (m = 3), α = 0.05. Chi tiết tro
 Ba điều kiện bền: (i) H1, H2 giữ nguyên khi dùng LR tốt nhì; (ii) H3 hai nhánh (LR per rank chính + LR cố định 2e-4 kiểm tra); (iii) LR tune ở 6 epoch tái dùng cho 3 epoch.
 
 ---
+
+## Kết quả chính (Tính đến 2026-10-17)
+
+
+Dự án đã hoàn thành toàn bộ thực nghiệm xác nhận (R1, B1, B2) và baseline so sánh (AdaLoRA). Kết quả tóm tắt:
+
+*   **H1 (F1 Equivalence):** Tăng rank toàn cục từ 1 lên 32 **không cải thiện** Macro-F1 trên XLM-R/UIT-VSFC (TOST, p_holm = 0.016).
+*   **H2 (Calibration):** Tăng rank làm NLL **tệ đi** (p_holm = 0.014), ngay cả sau khi Temperature Scaling.
+*   **H3 (Training Budget):** Có tương tác rank × epoch (p_holm = 0.002). Ở 3 epoch, rank cao bị underfitting và F1 lớp Neutral sụt giảm. Ở 6 epoch, Rank 1 đuổi kịp Rank 32.
+*   **Robustness (B1, B2):**
+    *   **B1 (PhoBERT):** Tăng rank *có* cải thiện F1 (+0.019), nhưng NLL tệ đi rất mạnh (+0.044).
+    *   **B2 (AG News):** F1 và NLL gần như đi ngang.
+*   **Adaptive Rank Baseline:** AdaLoRA (budget 576) chỉ đạt F1 ~0.73, **thua xa** LoRA Global Rank 8 (F1 ~0.834) với cùng ngân sách.
 
 ## Cấu trúc repo
 
@@ -223,4 +238,4 @@ Tác giả liên hệ: TS. Đinh Thị Hồng Huyên
 
 Đơn vị: Khoa Công nghệ Thông tin, Trường Đại học Quy Nhơn
 
-_Last updated: 2026-10-16 · Status: pre-registration public (OSF DOI 10.17605/OSF.IO/A2MN5), Phase 1 tune in progress_
+_Last updated: 2026-10-17 · Status: Experiments complete. Manuscript drafting phase._
