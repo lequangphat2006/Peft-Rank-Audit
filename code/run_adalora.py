@@ -82,14 +82,18 @@ def main():
         
         model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=3)
         
-        # Sử dụng tỷ lệ phần trăm để tránh lỗi lịch trình
+        # Sử dụng tỷ lệ phần trăm phù hợp: tinit=10%, tfinal=70% để có khoảng budgeting
+        tinit_val = int(total_steps * 0.1)
+        tfinal_val = int(total_steps * 0.7)
+        print(f"AdaLoRA schedule: tinit={tinit_val}, tfinal={tfinal_val}, total_step={total_steps}")
+
         config = AdaLoraConfig(
             init_r=args.init_rank,
             target_r=args.target_rank,
             total_step=total_steps,
-            tinit=int(total_steps * 0.1),  # 10% đầu để warmup
-            tfinal=int(total_steps * 0.9), # 90% cuối để cố định rank
-            deltaT=10,
+            tinit=tinit_val,
+            tfinal=tfinal_val,
+            deltaT=50, # Tang deltaT de giam chi phi SVD
             lora_alpha=16,
             lora_dropout=0.1,
             target_modules=["query", "key", "value", "dense"],
