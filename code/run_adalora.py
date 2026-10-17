@@ -70,6 +70,9 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True)
     test_loader = DataLoader(test_ds, batch_size=args.batch_size)
 
+    # Tinh toan total_step truoc khi khoi tao config
+    total_steps = len(train_loader) * args.epochs
+
     results = []
     for seed in args.seeds:
         print(f"\n=== Running AdaLoRA Seed {seed} ===")
@@ -81,8 +84,9 @@ def main():
         config = AdaLoraConfig(
             init_r=args.init_rank,
             target_r=args.target_rank,
+            total_step=total_steps,   # <-- FIX: Truyen total_step vao day
             tinit=200,
-            tfinal=1000,
+            tfinal=total_steps - 100, # Dam bao tfinal < total_steps
             deltaT=10,
             lora_alpha=16,
             lora_dropout=0.1,
@@ -93,7 +97,6 @@ def main():
         model.to(device)
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
-        total_steps = len(train_loader) * args.epochs
         scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=int(0.1*total_steps), num_training_steps=total_steps)
 
         global_step = 0
