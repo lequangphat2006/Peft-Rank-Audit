@@ -286,3 +286,18 @@ Macro-F1 calibration, seed 400, 6 epoch (từ `results/tuning/tuning_seed400.csv
 
 #### Kết luận chung cho Discussion
 Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) là một thuộc tính phụ thuộc vào **kiến trúc mô hình** và **ngôn ngữ/task**, chứ không phải là một hằng số của dữ liệu.
+### 10.7. Kết quả Thí nghiệm Hậu kiểm V1 (Tách LR khỏi Rank)
+
+**Setup:** 4 ranks (1, 4, 8, 32) x 4 seeds (200-203) x 3 epochs, **LR cố định 2e-4**.
+
+| Rank | R1 cũ (LR per rank) | V1 mới (LR=2e-4) | Nhận xét |
+|---|---|---|---|
+| 1 | 0.832 | 0.792 | Tụt giảm |
+| 4 | 0.831 | 0.824 | Tương đương |
+| 8 | 0.810 | 0.827 | **Hồi phục** |
+| 32 | 0.807 | 0.842 | **Vượt trội** |
+
+**Kết luận:** 
+- Tương tác H3 trong R1 bị confound bởi LR. Việc tái sử dụng LR của 6 epoch cho 3 epoch khiến các rank có LR nhỏ (8, 32) bị underfit nặng.
+- Khi có cùng LR (2e-4), rank cao (32) thực sự hội tụ nhanh hơn và đạt F1 cao hơn ở 3 epoch.
+- Đây là bằng chứng cho thấy việc tune LR cho từng ngân sách (epoch) là cực kỳ quan trọng.
