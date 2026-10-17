@@ -185,3 +185,6 @@ Trong phân tích R1, nhánh robustness của H3 (sử dụng LR cố định 2e
 - Đây là hiện tượng **thiếu dữ liệu (missing data)** của nhánh robustness, không phải "sập mô hình hàng loạt". 
 - Nhánh chính của H3 (LR per rank) hoàn toàn vững chắc: F = 9.613, p thô = 0.0023, p_holm = 0.0070.
 - Để khắc phục triệt để trong tương lai, nhánh robustness đủ 5 rank ở LR 2e-4 sẽ được chạy bổ sung (V1 - xem kế hoạch tiếp theo).
+### 9.6. Độ nhạy của FP16 ở ngưỡng biên
+
+Thí nghiệm V5 (FP32) cho thấy hiện tượng sập ở LR=1e-3 là bản chất của tối ưu hóa. Tuy nhiên, ở LR=5e-4 với Rank 32, FP32 ổn định (F1=0.82) nhưng FP16 có seed bị sập (F1=0.22). Điều này cho thấy FP16 làm tăng tính bất ổn định ở ngưỡng biên. Kết quả chính (R1) dùng FP16 với LR đã tune an toàn (5e-5), nên không bị ảnh hưởng.

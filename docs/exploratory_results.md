@@ -301,3 +301,20 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 - Tương tác H3 trong R1 bị confound bởi LR. Việc tái sử dụng LR của 6 epoch cho 3 epoch khiến các rank có LR nhỏ (8, 32) bị underfit nặng.
 - Khi có cùng LR (2e-4), rank cao (32) thực sự hội tụ nhanh hơn và đạt F1 cao hơn ở 3 epoch.
 - Đây là bằng chứng cho thấy việc tune LR cho từng ngân sách (epoch) là cực kỳ quan trọng.
+### 10.8. Kết quả Thí nghiệm Hậu kiểm V5 (FP32 vs FP16)
+
+**Setup:** Kiểm tra hiện tượng sập (collapse) ở các cấu hình nguy hiểm bằng độ chính xác FP32.
+
+| Rank | LR | F1 (FP32) | Trạng thái |
+|---|---|---|---|
+| 16 | 1e-3 | 0.2199 | Sập |
+| 32 | 1e-3 | 0.2199 | Sập |
+| 16 | 5e-4 | 0.8347 | Bình thường |
+| 32 | 5e-4 | 0.8203 | Bình thường (FP16 bị sập ở seed 400) |
+| 16 | 5e-5 | 0.8199 | Bình thường |
+| 32 | 5e-5 | 0.8415 | Bình thường |
+
+**Kết luận:** 
+- Hiện tượng sập ở LR=1e-3 là do bản chất tối ưu hóa (tương tác rank × LR), không phải lỗi số học của FP16.
+- Tuy nhiên, FP16 làm tăng tính bất ổn định ở ngưỡng biên (Rank 32 + 5e-4 sập ở FP16 nhưng ổn định ở FP32).
+- Cần ghi chú điều này vào Limitations.
