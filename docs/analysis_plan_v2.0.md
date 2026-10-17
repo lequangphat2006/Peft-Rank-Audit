@@ -279,6 +279,8 @@ Ngưỡng 0,005 ≈ một sai số chuẩn theo seed với SD dư 0,0081 và 3 s
 | 2026-10-17 | Thêm độ nhạy cho H1: (i) TOST trực tiếp hiệu số trung bình rank 32 trừ rank 1, δ = 0,01, CI 90%; (ii) so sánh mô hình tuyến tính log2(rank) với mô hình rank dạng phân loại (kiểm lệch tuyến tính). H1 đã đăng ký vẫn là phân tích chính | Lộ trình v4.1 và kế hoạch v2.0 định nghĩa estimand H1 khác nhau | Không đổi phân tích chính; hai độ nhạy gắn nhãn rõ |
 | 2026-10-17 | Định nghĩa lượt "sập": Macro-F1 calibration < 0,25 (dự đoán lớp đa số, F1 ≈ 0,2207). Lượt sập giữ trong bảng tuning và trong tính trung bình chọn LR; báo cáo tỷ lệ sập theo (rank, LR). Quy tắc xử lý ở R1 ghi riêng, ghi trước R1 | 3 lượt sập ở seed 400 (rank 16 + 1e-3; rank 32 + 5e-4, 1e-3) | Không ảnh hưởng quy tắc chọn LR đã đăng ký |
 | 2026-10-17 | Quy trình ghép shard tuning: seed 400 (20 lượt chạy ở commit 6ef174b, `run_pilot.py` không đổi so với dd8be95) chỉ đặt ở `tuning_gpu0.csv`; dedupe theo `run_id`, assert 60 dòng | Tránh trọng số kép của seed 400 | Không ảnh hưởng nếu thực hiện đúng |
+| 2026-10-17 | Thêm quy tắc quyết định cho thí nghiệm hậu kiểm V1 (tách LR khỏi rank trong H3) | Reviewer chỉ ra H3 có thể bị confound bởi LR (rank 8 và 32 có LR nhỏ nhất nên dễ underfit ở 3 epoch). Chạy lại rank 1, 4, 8, 32 ở 3 epoch với LR cố định 2e-4 (16 lượt). Quy tắc: (1) Nếu tương tác rank x epoch biến mất -> "Tương tác nảy sinh do chọn LR per rank". (2) Nếu vẫn còn -> "Độ nhạy rank phụ thuộc ngân sách" (giữ H3). (3) Nếu ngược dấu -> H3 không bền. Phân tích này gắn nhãn "bổ sung sau khi thấy dữ liệu". | Củng cố tính vững chắc của H3 |
+
 
 ---
 
