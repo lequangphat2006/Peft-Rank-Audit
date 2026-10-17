@@ -269,3 +269,20 @@ Macro-F1 calibration, seed 400, 6 epoch (từ `results/tuning/tuning_seed400.csv
 #### Lỗi kỹ thuật ghi nhận
 
 - Nhánh robustness của H3 (LR cố định 2e-4) gặp lỗi `SingularMatrixWarning` (F=inf, p=nan). Nguyên nhân do một số tổ hợp (rank, epoch) bị sập (collapse) khi dùng LR cố định, dẫn đến ma trận thiết kế bị suy biến. Nhánh chính (LR per rank) không bị ảnh hưởng.
+
+### 10.6. Kết quả Cell B1, B2 (Giai đoạn 2 — Nhân bản)
+
+**Setup:** 4 ranks (1, 4, 16, 32) × 8 seeds (300-307) × 6 epochs.
+
+#### B1: VSFC × PhoBERT
+- **H1 (F1):** NOT shown equivalent (+0.0193, 90% CI [+0.0137, +0.0250]). Tăng rank CÓ cải thiện F1 trên PhoBERT.
+- **H2 (NLL):** INCREASES (+0.0443, p < 0.001). Tăng rank làm NLL tệ đi.
+- *Hàm ý:* Mô hình đơn ngữ (PhoBERT) chưa bão hòa ở rank 1 như XLM-R.
+
+#### B2: AG News × XLM-R
+- **H1 (F1):** NOT shown equivalent (+0.0090, 90% CI [+0.0068, +0.0111]). Hiệu ứng nằm sát ngưỡng δ=0.01.
+- **H2 (NLL):** NOT confirmed (+0.0065, p=0.13). Tăng rank không làm NLL tệ đi rõ rệt.
+- *Hàm ý:* Với task tiếng Anh và dataset lớn hơn, tác động của rank lên calibration mờ nhạt hơn.
+
+#### Kết luận chung cho Discussion
+Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) là một thuộc tính phụ thuộc vào **kiến trúc mô hình** và **ngôn ngữ/task**, chứ không phải là một hằng số của dữ liệu.
