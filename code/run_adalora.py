@@ -117,9 +117,11 @@ def main():
                 loss.backward()
                 optimizer.step()
                 scheduler.step()
-                optimizer.zero_grad()
                 
+                # AdaLoRA cần p.grad để tính độ quan trọng -> phải gọi TRƯỚC zero_grad
                 model.base_model.update_and_allocate(global_step)
+                
+                optimizer.zero_grad()
                 global_step += 1
                 epoch_loss += loss.item()
                 
