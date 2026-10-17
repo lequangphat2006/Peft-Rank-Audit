@@ -177,10 +177,11 @@ Hệ quả: nếu không mở rộng lưới, kết luận "rank toàn cục kh�
 
 ### 9.5. Suy biến ma trận ở nhánh robustness của H3 (R1)
 
-Trong phân tích R1, nhánh robustness của H3 (sử dụng LR cố định 2e-4 cho tất cả các rank) gặp hiện tượng `SingularMatrixWarning` (ma trận thiết kế bị rank-deficient), dẫn đến kết quả `F=inf, p=nan`.
+Trong phân tích R1, nhánh robustness của H3 (sử dụng LR cố định 2e-4) gặp hiện tượng `SingularMatrixWarning` (ma trận thiết kế bị rank-deficient), dẫn đến kết quả `F=inf, p=nan`.
 
-**Nguyên nhân:** Khi ép tất cả các rank dùng chung mức LR 2e-4, các cấu hình rank cao (như rank 16, 32) bị sập hoàn toàn (F1 rơi về mức dự đoán lớp đa số ~0.22). Điều này làm cho phương sai của biến phụ thuộc ở một số nhóm (rank, epoch) bằng 0, khiến OLS không thể ước lượng được hệ số.
+**Nguyên nhân:** R1 là kết quả của nhánh LR per rank. Do đó, trong file dữ liệu `global_merged.csv`, chỉ có rank 16 là được chạy ở mức LR 2e-4 (theo tuning_decision.json). Các rank khác (1, 4, 8, 32) được chạy ở LR 1e-3, 5e-4, 1e-4, 5e-5. Vì vậy, nhánh LR cố định 2e-4 chỉ có dữ liệu của rank 16, dẫn đến bậc tự do (df) = 0 và không thể ước lượng được hệ số. 
 
 **Xử lý:** 
-- Nhánh chính của H3 (sử dụng LR per rank) không bị ảnh hưởng và đạt ý nghĩa thống kê vững chắc (p_holm = 0.0023).
-- Trong bài báo, kết quả của nhánh robustness sẽ được báo cáo là "không thể ước lượng do sập mô hình hàng loạt", và đây chính là bằng chứng thực nghiệm mạnh mẽ nhất cho thấy tầm quan trọng của việc tune LR per rank.
+- Đây là hiện tượng **thiếu dữ liệu (missing data)** của nhánh robustness, không phải "sập mô hình hàng loạt". 
+- Nhánh chính của H3 (LR per rank) hoàn toàn vững chắc: F = 9.613, p thô = 0.0023, p_holm = 0.0070.
+- Để khắc phục triệt để trong tương lai, nhánh robustness đủ 5 rank ở LR 2e-4 sẽ được chạy bổ sung (V1 - xem kế hoạch tiếp theo).
