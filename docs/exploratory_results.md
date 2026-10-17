@@ -187,3 +187,38 @@ Macro-F1 calibration, seed 400, 6 epoch (từ `results/tuning/tuning_seed400.csv
 **Lưu ý về ngưỡng hòa 0,005:** một số lựa chọn LR thực chất là hòa. Ví dụ rank 16 giữa 1e-4 (F1 = 0.8096) và 5e-4 (F1 = 0.8129) chênh 0.0033 < 0.005 → theo quy tắc mục 5 của kế hoạch, chọn LR nhỏ hơn (1e-4). Đây là hành vi đã đăng ký, không phải quyết định sau khi thấy dữ liệu.
 
 **Patch kỹ thuật:** `code/analyze_tuning.py` thêm block `sys.stdout.reconfigure(encoding="utf-8")` trước `if __name__ == "__main__"`, để chạy được trên Windows (cp1252) mà không cần `chcp 65001`. Idempotent trên Linux/Kaggle. Lý do: lần chạy đầu tiên trên local crash với `UnicodeEncodeError` khi `print()` chuỗi có ký tự tiếng Việt.
+
+### 10.3. Kết quả Tune 3 seed (400-402) — Phase 1 vòng 1
+
+**Setup:** 5 rank × 4 LR × 3 seed × 6 epoch, calibration, fp16. Tổng 60 lượt.
+
+#### Bảng Macro-F1 trung bình (calibration)
+
+| Rank | LR 1e-4 | LR 2e-4 | LR 5e-4 | LR 1e-3 | Best LR |
+|---|---|---|---|---|---|
+| **1** | 0.7888 | 0.8089 | 0.8059 | **0.8160** | **1e-3** (biên trên) |
+| **4** | 0.8045 | 0.8052 | **0.8173** | 0.8075 | **5e-4** (trong lưới) |
+| **8** | **0.8143** | 0.8119 | 0.8176* | 0.8064 | **1e-4** (biên dưới) |
+| **16** | 0.8059 | **0.8122** | 0.8153* | 0.2207 | **2e-4** (trong lưới) |
+| **32** | **0.8134** | 0.8144* | 0.4092 | 0.2407 | **1e-4** (biên dưới) |
+
+*Ghi chú: (\*) chênh lệch so với best < 0.005, áp dụng quy tắc hòa → chọn LR nhỏ hơn.*
+
+#### Hiện tượng "sập" (Collapse)
+
+- **Rank 16 + LR 1e-3:** sập 3/3 seed (F1 = 0.2207, NLL = 0.8403).
+- **Rank 32 + LR 5e-4:** sập 1-2/3 seed (mean 0.4092, std 0.3265).
+- **Rank 32 + LR 1e-3:** sập 3/3 seed (mean 0.2407).
+- **Nhận định:** Xác nhận tương tác rank × LR. Với α = 2r, rank cao có ΔW lớn hơn, không chịu được LR cao.
+
+#### Cổng A (Kích hoạt)
+
+- LR tối ưu khác nhau rõ rệt giữa các rank: {1e-4, 2e-4, 5e-4, 1e-3}.
+- Quyết định: **Dùng LR per rank cho Phase 2 (R1)**.
+- Phát hiện: Rank 1 chạm biên trên (1e-3); Rank 8, 32 chạm biên dưới (1e-4).
+
+#### Hành động tiếp theo (Cell 10.1c)
+
+- Mở rộng lưới một bước: 2e-3 cho rank 1; 5e-5 cho rank 8, 32.
+- 9 lượt mới (3 rank × 3 seed).
+- Sau khi có kết quả, chốt `tuning_decision.json` chính thức.
