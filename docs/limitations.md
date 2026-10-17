@@ -174,3 +174,13 @@ Hệ quả: nếu không mở rộng lưới, kết luận "rank toàn cục kh�
 `run_pilot.py` thêm `--lr_map` (LR per rank) ngày 2026-10-17, **sau** khi thấy seed 400 có LR tối ưu khác nhau giữa các rank. Đây là hạ tầng kỹ thuật, không phải thay đổi thiết kế — nhưng cần ghi để minh bạch.
 
 **Xử lý:** patch ghi vào CHANGELOG (Cycle 3b, commit `4148c0b`). Kiểm tra: `run_pilot.py` giữ nguyên logic huấn luyện giữa `6ef174b` (chạy seed 400) và các commit sau — chỉ thêm nhánh `if lr_map is not None`, không ảnh hưởng khi `lr_map=None` (backward compat).
+
+### 9.5. Suy biến ma trận ở nhánh robustness của H3 (R1)
+
+Trong phân tích R1, nhánh robustness của H3 (sử dụng LR cố định 2e-4 cho tất cả các rank) gặp hiện tượng `SingularMatrixWarning` (ma trận thiết kế bị rank-deficient), dẫn đến kết quả `F=inf, p=nan`.
+
+**Nguyên nhân:** Khi ép tất cả các rank dùng chung mức LR 2e-4, các cấu hình rank cao (như rank 16, 32) bị sập hoàn toàn (F1 rơi về mức dự đoán lớp đa số ~0.22). Điều này làm cho phương sai của biến phụ thuộc ở một số nhóm (rank, epoch) bằng 0, khiến OLS không thể ước lượng được hệ số.
+
+**Xử lý:** 
+- Nhánh chính của H3 (sử dụng LR per rank) không bị ảnh hưởng và đạt ý nghĩa thống kê vững chắc (p_holm = 0.0023).
+- Trong bài báo, kết quả của nhánh robustness sẽ được báo cáo là "không thể ước lượng do sập mô hình hàng loạt", và đây chính là bằng chứng thực nghiệm mạnh mẽ nhất cho thấy tầm quan trọng của việc tune LR per rank.

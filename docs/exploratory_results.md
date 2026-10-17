@@ -245,3 +245,27 @@ Macro-F1 calibration, seed 400, 6 epoch (từ `results/tuning/tuning_seed400.csv
 - LR tối ưu trải rộng từ **5e-5 đến 1e-3**.
 - **Rank 32** đã dịch chuyển từ 1e-4 xuống 5e-5 sau khi mở rộng. Điều này chứng minh quy tắc mở rộng lưới (đăng ký trước) là cần thiết để tránh thiên vị rank cao.
 - **Kết luận:** Cổng A kích hoạt (a). Phase 2 (R1, seeds 200-215) sẽ dùng `tuning_decision.json` qua cờ `--lr_map` của `run_pilot.py`.
+
+### 10.5. Kết quả R1 (Xác nhận) — 16 seeds × 5 ranks × 2 epochs (160 runs)
+
+**Setup:** `global_merged.csv` (16 seeds: 200-215), sử dụng LR per rank từ `tuning_decision.json`, đánh giá trên test.
+
+#### Kết quả chính (Họ giả thuyết H1–H3, Holm m=3, α = 0.05)
+
+| Mã | Giả thuyết | Kết quả ước lượng | p-value (Holm) | Kết luận |
+|---|---|---|---|---|
+| **H1** | F1 tương đương 0 | F1 total = -0.0034, 90% CI [-0.0084, +0.0016] | 0.0162 | **TƯƠNG ĐƯƠNG** (nằm trong δ=0.01) |
+| **H2** | NLL tăng theo rank | NLL total = +0.0049, 95% CI [+0.0010, +0.0087] | 0.0144 | **XÁC NHẬN** (NLL tăng) |
+| **H3** | Tương tác rank × epoch | F = 9.613 | 0.0023 | **CÓ Ý NGHĨA** |
+
+#### Khám phá (Exploratory)
+
+- **Ảnh hưởng của ngân sách huấn luyện:**
+  - 3 epochs: F1 giảm (-0.0202), NLL tăng mạnh (+0.0242).
+  - 6 epochs: F1 đi ngang (-0.0034), NLL tăng nhẹ (+0.0049).
+  - *Hàm ý:* Ở 3 epoch, rank cao bị underfitting. Khi có đủ 6 epoch, rank 1 đã hội tụ và đuổi kịp rank 32.
+- **Hiệu chuẩn (Calibration):** Sau khi áp dụng Temperature Scaling (T ~ 1.5 - 1.6), NLL vẫn tăng theo rank (+0.0071 [+0.0038, +0.0103]). Điều này cho thấy tác động của rank lên NLL không chỉ là do overconfidence đơn thuần.
+
+#### Lỗi kỹ thuật ghi nhận
+
+- Nhánh robustness của H3 (LR cố định 2e-4) gặp lỗi `SingularMatrixWarning` (F=inf, p=nan). Nguyên nhân do một số tổ hợp (rank, epoch) bị sập (collapse) khi dùng LR cố định, dẫn đến ma trận thiết kế bị suy biến. Nhánh chính (LR per rank) không bị ảnh hưởng.
