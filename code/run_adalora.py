@@ -72,6 +72,7 @@ def main():
 
     # Tinh toan total_step truoc khi khoi tao config
     total_steps = len(train_loader) * args.epochs
+    print(f"Total training steps: {total_steps}")
 
     results = []
     for seed in args.seeds:
@@ -81,12 +82,13 @@ def main():
         
         model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=3)
         
+        # Sử dụng tỷ lệ phần trăm để tránh lỗi lịch trình
         config = AdaLoraConfig(
             init_r=args.init_rank,
             target_r=args.target_rank,
-            total_step=total_steps,   # <-- FIX: Truyen total_step vao day
-            tinit=200,
-            tfinal=total_steps - 100, # Dam bao tfinal < total_steps
+            total_step=total_steps,
+            tinit=int(total_steps * 0.1),  # 10% đầu để warmup
+            tfinal=int(total_steps * 0.9), # 90% cuối để cố định rank
             deltaT=10,
             lora_alpha=16,
             lora_dropout=0.1,
@@ -113,14 +115,12 @@ def main():
                 scheduler.step()
                 optimizer.zero_grad()
                 
-                # Cap nhat phan bo rank cua AdaLoRA
                 model.base_model.update_and_allocate(global_step)
                 global_step += 1
                 epoch_loss += loss.item()
                 
             print(f"Epoch {epoch} Loss: {epoch_loss/len(train_loader):.4f}")
 
-        # Eval
         f1, nll = evaluate(model, test_loader, device)
         print(f"Seed {seed} - Test F1: {f1:.4f}, NLL: {nll:.4f}")
         
