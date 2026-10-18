@@ -323,7 +323,7 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 **1. Phân tích H3 (Nhánh LR cố định 2e-4):**
 - Kết hợp V1 (3 epochs) và V1b (6 epochs) với LR cố định 2e-4.
 - Kết quả F-test: (Xem file `results/analysis/v1b_h3_fixed.json`).
-- *Kết luận:* Tương tác rank × epoch VẪN CÒN ngay cả khi LR cố định (p = 0.0028). H3 hoàn toàn bền vững. Rank cao giúp hội tụ nhanh ở 3 epoch, nhưng rank thấp đuổi kịp khi có đủ 6 epoch.
+- *Kết luận:* Tương tác rank × epoch VẪN CÓ ý nghĩa thống kê (p=0.0028) nhưng **ĐẢO DẤU** so với R1. Nhánh R1 (LR per rank) có tương tác dương (+0.017), nhánh LR cố định có tương tác âm (-0.033). Theo quy tắc đã đăng ký, **H3 không bền vững**. Rank cao chỉ hội tụ nhanh ở 3 epoch trong điều kiện LR cố định.
 
 **2. Kết quả V5b (FP32, ghép cặp seed 400-402):**
 - Chạy lại các cấu hình từng sập ở FP16 (rank 16, 32 với LR 1e-3, 5e-4) bằng FP32.
@@ -376,4 +376,4 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 
 **Kết luận:**
 - **Về F1:** Vẫn tương đương giữa rank 1 và 32 (chênh lệch ~0.005). Khẳng định lại H1 (F1 không phụ thuộc vào rank hay cách chọn alpha).
-- **Về NLL:** Khi dùng alpha cố định, rank 32 lại có NLL tốt hơn rank 1. Điều này chứng minh hiện tượng NLL tệ đi ở R1 (dùng 2r) là do hệ số phóng đại alpha = 2r gây ra (over-scaling), chứ không phải do bản chất của rank.
+- **Về NLL:** Khi dùng alpha cố định, rank 32 có NLL tốt hơn rank 1. Đây là một **phân tích thăm dò** (3 seeds) gợi ý rằng hiện tượng NLL tệ đi ở R1 có thể do hệ số phóng đại alpha = 2r. Cần thêm seed và TOST để khẳng định.
