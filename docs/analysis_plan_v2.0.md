@@ -342,6 +342,9 @@ Ngưỡng 0,005 ≈ một sai số chuẩn theo seed với SD dư 0,0081 và 3 s
 
 | 10-16 | Tune seed 400 (20 lượt): LR tối ưu khác nhau giữa các rank; 3 collapse rank 16/32 + LR ≥ 5e-4 | seed 400, calibration |
 
+| 2026-10-18 | Ghi nhận phân tích bổ sung (post-hoc): Độ nhạy Alpha (fixed:16). | Kiểm tra xem kết luận có phụ thuộc vào hệ số alpha = 2r không. | F1 tương đương giữa các rank. NLL tăng ở R1 là do hệ số 2r, không phải bản chất rank. |
+
+
 ---
 
 ## 13. Liên hệ

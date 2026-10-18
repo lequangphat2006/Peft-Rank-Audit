@@ -364,3 +364,16 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 - Việc tune LR giúp PhoBERT đạt được kết quả ổn định và cao hơn so với B1 cũ.
 - **Phát hiện quan trọng:** Khác với XLM-R (nơi rank 1 là đủ), PhoBERT (mô hình nhỏ hơn, đơn ngữ) lại cần rank cao hơn (rank 32) để đạt F1 tốt nhất. Điều này chứng minh "capacity need" phụ thuộc vào kiến trúc mô hình.
 - Tuy nhiên, cái giá phải trả là NLL tệ đi, nhất quán với hiện tượng overconfidence khi tăng rank.
+
+### 10.12. Độ nhạy Alpha (Alpha Sensitivity, fixed:16)
+
+**Setup:** Chạy Rank 1 và 32 với alpha cố định 16 (thay vì 2r), 3 seeds (200-202), 6 epochs.
+
+| Rank | F1 Mean | NLL Mean |
+|---|---|---|
+| 1 | 0.8404 | 0.2166 |
+| 32 | 0.8454 | 0.2026 |
+
+**Kết luận:**
+- **Về F1:** Vẫn tương đương giữa rank 1 và 32 (chênh lệch ~0.005). Khẳng định lại H1 (F1 không phụ thuộc vào rank hay cách chọn alpha).
+- **Về NLL:** Khi dùng alpha cố định, rank 32 lại có NLL tốt hơn rank 1. Điều này chứng minh hiện tượng NLL tệ đi ở R1 (dùng 2r) là do hệ số phóng đại alpha = 2r gây ra (over-scaling), chứ không phải do bản chất của rank.
