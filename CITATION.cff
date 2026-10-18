@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite the corresponding paper."
+authors:
+  - family-names: "Le"
+    given-names: "Quang Phat"
+  - family-names: "Dinh"
+    given-names: "Thi Hong Huyen"
+title: "How Much Does Global LoRA Rank Matter? A Preregistered Equivalence and Calibration Audit on XLM-R/UIT-VSFC"
+version: 1.0.0
+date-released: 2026-10-18
+url: "https://github.com/lequangphat2006/Peft-Rank-Audit"

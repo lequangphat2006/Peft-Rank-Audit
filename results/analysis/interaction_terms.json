@@ -1,0 +1,12 @@
+{
+  "R1_LR_per_rank": {
+    "effect_3ep": -0.0202,
+    "effect_6ep": -0.0034,
+    "interaction": 0.0168
+  },
+  "Fixed_LR_2e4": {
+    "effect_3ep": 0.0486,
+    "effect_6ep": 0.0159,
+    "interaction": -0.0327
+  }
+}

@@ -1,241 +1,148 @@
-[![OSF Preregistration](https://img.shields.io/badge/OSF-Preregistered-blue)](https://doi.org/10.17605/OSF.IO/A2MN5)
-
 # PEFT Rank Audit
 
-**Kiểm toán ảnh hưởng của rank LoRA đến khả năng phân biệt và hiệu chuẩn**
+**Kiểm toán ảnh hưởng của rank LoRA toàn cục đến khả năng phân biệt và hiệu chuẩn**
 
 *Rank LoRA toàn cục có cải thiện Macro-F1 không, có làm thay đổi NLL không, và hiệu ứng đó có phụ thuộc ngân sách huấn luyện không?*
 
-**Pre-registration:** [10.17605/OSF.IO/A2MN5](https://doi.org/10.17605/OSF.IO/A2MN5) (public 2026-10-16)
+**Đăng ký trước (pre-registration):** [10.17605/OSF.IO/A2MN5](https://doi.org/10.17605/OSF.IO/A2MN5) (công khai 2026-10-16)
 
----
-
-> **Đề tài đã đổi hướng ngày 2026-10-15** sang câu hỏi rank toàn cục. Pre-registration OSF: [10.17605/OSF.IO/A2MN5](https://doi.org/10.17605/OSF.IO/A2MN5).
+> **Trạng thái (2026-10-18):** Đã hoàn thành các thực nghiệm xác nhận (R1, B1, B2) và các phân tích hậu kiểm (V1–V8, độ nhạy α, AdaLoRA). Đang soạn bản thảo. Mọi phân tích được thiết kế sau khi đã thấy dữ liệu đều được gắn nhãn "hậu kiểm" hoặc "thăm dò" và ghi trong mục 9 của kế hoạch phân tích.
 
 ## Giới thiệu
 
-Các phương pháp phân bổ rank thích ứng (AdaLoRA, IGU-LoRA, BaRA, StatLoRA) cho rank khác nhau giữa các thành phần của mô hình, dựa trên giả định rằng một số thành phần cần nhiều dung lượng hơn phần khác. Dự án này kiểm toán liệu việc sử dụng một rank LoRA toàn cục (cùng một rank cho tất cả thành phần) có ảnh hưởng tới Macro-F1 và NLL so với các rank khác nhau, và liệu hiệu ứng này có phụ thuộc vào ngân sách huấn luyện hay không.
+Các phương pháp phân bổ rank thích ứng (AdaLoRA, IGU-LoRA, StatLoRA) cho các thành phần của mô hình rank khác nhau, dựa trên giả định rằng mỗi thành phần có một "nhu cầu dung lượng" riêng và đo được. Dự án này là một **kiểm toán đăng ký trước** để trả lời câu hỏi cơ bản hơn: *tăng rank LoRA toàn cục mang lại lợi ích gì, và cái giá là gì?*
 
 **Đóng góp dự kiến:**
 
-1. Thiết kế đăng ký trước, đủ power, để đo ảnh hưởng của rank toàn cục lên Macro-F1 (TOST) và NLL trên XLM-R-base với UIT-VSFC.
-2. Kiểm tra hiệu ứng theo ngân sách huấn luyện (3 vs 6 epoch).
-3. Báo cáo trung thực các kết quả âm tính và khám phá đã có (pilot, Stage 1a–1c), kèm power.
+1. **Kiểm định tương đương (TOST) có đăng ký trước** cho ảnh hưởng của rank toàn cục lên Macro-F1 và NLL, với ngưỡng có ý nghĩa thực tế δ = 0,01 và quy tắc chọn LR theo rank được ghi trước.
+2. **Chỉ ra các yếu tố có thể tạo ra "hiệu ứng rank" giả:** cách chọn learning rate (LR), độ chính xác fp16 và hệ số α = 2r. Mỗi yếu tố có bằng chứng ở mức khác nhau, xem phần Kết quả.
+3. **Tính phụ thuộc mô hình:** kết luận trên XLM-R không chuyển sang PhoBERT.
+4. **Báo cáo trung thực kết quả âm tính, độ bất định do mẫu test và các sai lệch so với đăng ký.**
 
-**Định vị:** Không đề xuất thuật toán mới; giá trị nằm ở phép đo và kiểm toán. Phạm vi: một mô hình (XLM-R-base), tiếng Việt, tune LR theo rank, epochs {3,6}.
-
----
-
-## Trạng thái
-
-| Giai đoạn | Trạng thái | Ngày |
-|---|---:|---|
-| Code v3 (run_pilot, rankcap, tests) | ✅ | 2026-10-16 |
-| Pytest 29/29 pass | ✅ | 2026-10-16 |
-| Data prepared + QC near-dup | ✅ | 2026-10-16 |
-| Push GitHub | ✅ | 2026-10-03 |
-| Kaggle setup (gỡ torchao, fp16) | ✅ | 2026-10-16 |
-| Smoke test v2 | ✅ | 2026-10-15 |
-| Reference baselines (head, full FT) | ✅ | 2026-10-16 |
-| Pilot C1 + Stage 1a–1c (hướng cũ) | ✅ Âm tính | 2026-10-15 |
-| Đổi hướng sang rank toàn cục | ✅ | 2026-10-15 |
-| Kế hoạch phân tích v2.0 (tag `analysis-plan-v2.0`) | ✅ | 2026-10-16 |
-| **OSF pre-registration public (DOI 10.17605/OSF.IO/A2MN5)** | ✅ | 2026-10-16 |
-| Tune 3 seed (400-402, 69 lượt, mở rộng lưới) | ✅ | 2026-10-17 |
-| Giai đoạn 1: global sweep R1 (16 seed, 160 lượt) | ✅ | 2026-10-17 |
-| Giai đoạn 2: cell B1 (PhoBERT), B2 (AG News) | ✅ | 2026-10-17 |
-| Baseline: AdaLoRA (init 12, target 8, seed 200-202) | ✅ | 2026-10-17 |
-| Phân tích sâu (Neutral F1, AdaLoRA ranks) | ✅ | 2026-10-17 |
-| Outline Bản thảo | ✅ | 2026-10-17 |
-| Viết bản thảo (Drafting) | ⏳ | — |
+AdaLoRA được chạy như một baseline **thăm dò**, chưa tune công bằng, nên không dùng để rút ra kết luận so sánh.
 
 ---
 
-## Câu hỏi nghiên cứu (hiện hành)
+## Kết quả chính (tính đến 2026-10-18)
 
-Họ xác nhận H1–H3, hiệu chỉnh Holm (m = 3), α = 0.05. Chi tiết trong `docs/analysis_plan_v2.0.md`.
+Thiết lập chính (R1): XLM-R-base, UIT-VSFC, 16 seed (200–215), 5 rank {1, 4, 8, 16, 32}, 3 và 6 epoch, LR tune theo rank bằng quy tắc đã đăng ký (160 lượt). Số liệu tổng hợp: `results/analysis/final_results.json`, `global_v1.json`, `v1b_h3_fixed.json`.
 
-| Mã | Câu hỏi | Giả thuyết | Kiểm định |
-|---|---|---|---|
-| H1 | Rank toàn cục có cải thiện khả năng phân biệt không? | Hiệu ứng tổng rank 1→32 lên Macro-F1 ≈ 0 (6 epoch, LR per rank) | TOST, δ = 0.01 |
-| H2 | Rank có ảnh hưởng đến NLL không? | NLL tăng theo rank (6 epoch) | Hệ số > 0, một phía |
-| H3 | Hiệu ứng rank có phụ thuộc ngân sách huấn luyện không? | Độ dốc rank của F1 khác nhau giữa 3 và 6 epoch | F-test tương tác, hai nhánh |
+| Giả thuyết | Kết quả | Trạng thái |
+|---|---|---|
+| **H1** (tương đương F1) | Tổng hiệu ứng rank 1→32 trên Macro-F1: −0,003, CI 90% [−0,008; +0,002]. TOST đạt trong δ = 0,01 (p_holm = 0,016), tính theo phương sai giữa các seed. | Đạt theo seed; xem lưu ý về mẫu test bên dưới |
+| **H2** (NLL) | NLL tăng theo rank: tổng +0,005 (khoảng 2%) ở 6 epoch, p_holm = 0,014. Nhỏ hơn ngưỡng thực tế δ_NLL = 0,01. | Có ý nghĩa thống kê, nhỏ về thực tế |
+| **H3** (rank × epoch) | Nhánh chính (LR theo rank): tương tác +0,017, p thô = 0,0023, p_holm = 0,0070. Nhánh LR cố định 2e-4: tương tác −0,033 (4 rank, 4 seed). Hai nhánh **ngược dấu**. | Không bền vững theo quy tắc đã đăng ký |
 
-Ba điều kiện bền: (i) H1, H2 giữ nguyên khi dùng LR tốt nhì; (ii) H3 hai nhánh (LR per rank chính + LR cố định 2e-4 kiểm tra); (iii) LR tune ở 6 epoch tái dùng cho 3 epoch.
+**Lưu ý về mẫu test (V7).** Khoảng tin cậy của H1 ở trên chỉ phản ánh phương sai do seed. Khi bootstrap ghép cặp trên các mẫu test (1.599 mẫu, logits của 16 seed, 6 epoch), tổng hiệu ứng rank 1→32 vẫn là −0,003 nhưng CI 90% rộng hơn: [−0,013; +0,006], cận dưới vượt nhẹ ngưỡng −0,01. Kết quả gần như không đổi trên test đã loại near-duplicate (1.539 mẫu): −0,004, CI 90% [−0,013; +0,006]. Vì vậy, kết luận "tương đương trong δ = 0,01" đúng với biến thiên do huấn luyện, nhưng **chưa được xác lập khi tính thêm nhiễu do kích thước tập test**. F1 từng rank có CI 95% khoảng ±0,03, và F1 lớp neutral khoảng ±0,09 (≈ 67 mẫu test).
 
----
+**Diễn giải H3.** Ở LR cố định, F1 tăng theo rank ở 3 epoch (tổng +0,049), trong khi ở nhánh LR theo rank, hai rank bị gán LR thấp nhất (8 và 32) kém ở 3 epoch. Vì LR được tune ở 6 epoch rồi dùng lại cho 3 epoch, một phần tương tác rank × epoch ở nhánh chính gắn với cách chọn LR chứ không chỉ với rank. Nhánh LR cố định mới có 4 seed và 4 rank, nên đây là bằng chứng mạnh nhưng chưa phải kết luận cuối cùng.
 
-## Kết quả chính (Tính đến 2026-10-17)
+**Phụ thuộc mô hình (V4, B1, B2).**
+- *PhoBERT (B1/V4, đã tune LR theo cùng quy tắc, 8 seed):* tăng rank từ 1 lên 32 cải thiện F1 khoảng +0,020 (từ 0,799 lên 0,819; CI 90% [+0,013; +0,028], TOST không đạt tương đương) và làm NLL tăng khoảng +0,021. Phần lớn lợi ích F1 đã đạt ở rank 16.
+- *B2 (AG News, LR cố định 2e-4, 8 seed):* F1 +0,009 (CI 95% [+0,006; +0,012]), TOST không đạt.
+- *XLM-R/UIT-VSFC (R1):* F1 tương đương theo seed (H1).
 
+**Độ ổn định số học (V5, V5b).** Ở LR 1e-3, các cấu hình rank 16 và 32 sập (F1 < 0,25) cả ở fp32, nên đó không chỉ là lỗi của fp16. Ở LR 5e-4, rank 32 sập 2/3 seed khi dùng fp16 nhưng 0/3 khi dùng fp32 (seed 400–402), nên fp16 góp phần vào vùng LR ổn định của rank cao.
 
-Dự án đã hoàn thành toàn bộ thực nghiệm xác nhận (R1, B1, B2) và baseline so sánh (AdaLoRA). Kết quả tóm tắt:
+**Độ nhạy α (thăm dò, 3 seed).** Ở LR 2e-4, 6 epoch, hiệu NLL (rank 32 trừ rank 1) là dương với α = 2r (+0,029 / +0,003 / +0,035) và âm với α = fixed:16 (−0,020 / −0,0002 / −0,022) trên cả ba seed. Dấu nhất quán, nhưng với n = 3 đây chỉ là gợi ý rằng phần tăng NLL theo rank trong R1 liên quan đến hệ số α = 2r; chưa phải kết luận.
 
-*   **H1 (F1 Equivalence):** Tăng rank toàn cục từ 1 lên 32 **không cải thiện** Macro-F1 trên XLM-R/UIT-VSFC (TOST, p_holm = 0.016).
-*   **H2 (Calibration):** Tăng rank làm NLL **tệ đi** (p_holm = 0.014), ngay cả sau khi Temperature Scaling.
-*   **H3 (Training Budget):** Tương tác rank × epoch có ý nghĩa thống kê ở nhánh chính, nhưng **ĐẢO DẤU** khi LR được cố định. Theo quy tắc đăng ký trước, H3 **không bền vững**.
-*   **Robustness (B1, B2):**
-    *   **B1 (PhoBERT):** Tăng rank *có* cải thiện F1 (+0.019), nhưng NLL tệ đi rất mạnh (+0.044).
-    *   **B2 (AG News):** F1 tăng rất nhẹ (+0.009, CI [+0.006, +0.012]) và NLL tăng không đáng kể. Hiệu ứng dương nhưng nằm sát ngưỡng tương đương.
-*   **Adaptive Rank Baseline:** AdaLoRA (budget 576, chưa tune LR) chỉ đạt F1 ~0.73-0.78, thấp hơn LoRA Global Rank 8 (F1 ~0.834). Đây là kết quả thăm dò, cần thêm thí nghiệm tune LR để kết luận chắc chắn.
-
-## Cấu trúc repo
-
-peft-rank-audit/
-```
-├── code/                # Source code
-│   ├── rankcap.py       # Rank allocation + LoRA patterns + alpha_mode
-│   ├── run_pilot.py     # Training loop + sweep (v3: --method, --alpha_mode, --data_fraction, ΔW stats, fp16 auto)
-│   ├── analyze_global.py# Phân tích H1-H3 (H3 hai nhánh, δ tương đối, forest plot)
-│   ├── analyze_tuning.py# Chọn LR theo rank (ngưỡng hòa 0.005)
-│   ├── power_global_sweep.py
-│   ├── check_near_dup.py
-│   ├── run_phase1a.py
-│   ├── analyze_pilot.py
-│   ├── analyze_.py
-│   ├── prepare_vsfc.py
-│   └── test_.py         # Unit tests (29 tests)
-├── data/                # Dữ liệu (không push)
-├── notebooks/           # Notebook Kaggle
-├── results/
-├── scripts/
-├── docs/
-├── README.md            # (file này)
-└── CHANGELOG.md
-```
+**AdaLoRA (thăm dò, chưa tune LR, 3 seed).** F1 khoảng 0,73 ở cấu hình đầu và khoảng 0,78 khi tắt orthogonal regularization, so với 0,834 của LoRA rank 8. Nguyên nhân khoảng cách còn lại chưa được chẩn đoán (lịch cắt tỉa, ngân sách rank cuối, LR), nên chưa kết luận AdaLoRA kém hơn LoRA toàn cục.
 
 ---
+
+## Hạn chế đã biết
+
+- Kết luận tương đương chỉ vững cho XLM-R-base trên UIT-VSFC và chỉ theo phương sai giữa các seed; B1 (PhoBERT) và B2 cho kết quả khác. Chưa có task hay mô hình thứ ba chạy đủ quy trình như R1, và chưa có decoder.
+- Split train/calibration/test cố định, nên các khoảng tin cậy theo seed không phản ánh biến thiên do chia dữ liệu. Bootstrap trên mẫu test (V7) cho thấy CI của H1 rộng hơn khoảng tin cậy theo seed, xem phần trên.
+- Phân tích LR cố định (V1, V1b), fp32 (V5, V5b), α và AdaLoRA là phân tích **hậu kiểm** hoặc **thăm dò**, thiết kế sau khi đã thấy dữ liệu R1.
+- AdaLoRA chạy trước khi có đăng ký cho nó và dùng LR của rank 8, không phải LR đã tune cho AdaLoRA.
+- Các cell B (B1, B2) ban đầu chạy với LR cố định 2e-4; B1 đã được tune lại ở V4, B2 thì chưa.
 
 ## Dữ liệu
 
-**UIT-VSFC sentiment** — Vietnamese Students' Feedback Corpus
+UIT-VSFC sentiment (Vietnamese Students' Feedback Corpus). Dữ liệu **không** được phân phối trong repo này (`data/` bị bỏ qua trong `.gitignore`); hãy tải từ nguồn gốc và đặt vào `data/vsfc_sent/` (`train.csv`, `calibration.csv`, `test.csv`).
 
-| Split | Số mẫu | Vai trò |
-|---|---:|---|
-| Train | 12,780 | Huấn luyện |
-| Calibration | 1,598 | Chọn LR; fit nhiệt độ |
-| Test | 1,599 | Chỉ số chính (không dùng để chọn gì) |
+- Train: 12.780 | Calibration: 1.598 | Test: 1.599
+- Near-duplicate với tập train (TF-IDF char_wb 3–5-gram, cosine ≥ 0,95): Calibration 5,19%, Test 3,75% (60 mẫu).
 
-**Phân bố lớp (train):**
+## Nhật ký chạy
 
-| Nhãn | Ý nghĩa | Số mẫu | Tỷ lệ |
-|---|---|---:|---:|
-| 0 | Negative | 5,986 | 46.8% |
-| 1 | Neutral | 522 | 4.1% |
-| 2 | Positive | 6,272 | 49.1% |
-
-**Xử lý mất cân bằng:** Cross-entropy **không trọng số** (`--class_weight none`, mặc định của `run_pilot.py`). Không resampling.
-
-**Near-duplicate leakage (TF-IDF char_wb 3-5 gram, cosine ≥ 0.95):**
-
-- Calibration: 5.19%
-- Test: 3.81%
-
-Data không push lên GitHub. Upload lên Kaggle Dataset `peft-data`.
-
----
-
-## Môi trường
-
-| Vai trò | Nền tảng | Cấu hình |
+| Chu kỳ | Ngày | Nội dung |
 |---|---|---|
-| Code + analyze | Local | Windows, torch CPU-only |
-| Train | Kaggle | 2× T4 16GB, torch CUDA |
+| 0–2 | 10-03 → 10-16 | Thiết lập, pilot, đổi hướng đề tài, đăng ký OSF |
+| 3 | 10-17 | Tune LR (69 lượt), R1 xác nhận (160 lượt), AdaLoRA thăm dò |
+| 4 | 10-18 | Hậu kiểm: V1/V1b (H3 theo LR cố định), V4 (PhoBERT), V5/V5b (fp32), V6 (AdaLoRA), V7 (bootstrap theo mẫu test), độ nhạy α |
 
-**Thư viện chính:** torch ≥ 2.1, transformers ≥ 4.45, peft 0.20.0, scikit-learn, scipy, statsmodels, pandas.
+## Cấu trúc repo
 
-Xem `docs/SETUP_KAGGLE.md` để biết chi tiết (gỡ `torchao` trước, dùng `--precision fp16`).
-
----
+```text
+peft-rank-audit/
+├── code/
+│   ├── run_pilot.py             Huấn luyện và sweep
+│   ├── run_adalora.py           Baseline AdaLoRA (thăm dò)
+│   ├── analyze_global.py        Phân tích H1-H3
+│   ├── analyze_tuning.py        Chọn LR theo rank
+│   ├── analyze_tost_b1.py       TOST cho B1 (PhoBERT)
+│   ├── analyze_v7_true.py       Bootstrap trên mẫu test (từng rank)
+│   ├── analyze_v7_drop_dup.py   Kiểm tra trên test đã loại near-duplicate
+│   └── ...                      Các script phân tích khác
+├── docs/
+│   ├── analysis_plan_v2.0.md    Kế hoạch đăng ký trước (mục 9: sai lệch)
+│   ├── limitations.md           Hạn chế
+│   ├── exploratory_results.md   Nhật ký kết quả (R1, B1, B2, V1-V8)
+│   └── ...
+├── results/
+│   ├── global/                  R1 (160 lượt) và logits (.npz)
+│   ├── tuning/                  Tune LR (69 lượt)
+│   ├── adalora/                 AdaLoRA thăm dò
+│   ├── v4_phobert/              Tune LR cho PhoBERT
+│   └── analysis/                JSON tổng hợp và biểu đồ
+├── README.md
+└── CHANGELOG.md
+```
 
 ## Cách chạy
 
-### Local — chạy test
+**1. Thiết lập môi trường (Kaggle):**
 
 ```bash
-python -m pytest code/test_run_pilot_v3.py code/test_run_pilot.py code/test_rankcap.py -v
+pip uninstall -y torchao
+git clone https://github.com/lequangphat2006/Peft-Rank-Audit.git
+cd Peft-Rank-Audit
+pip install -r requirements.txt
+cd code
 ```
 
-### Kaggle — tóm tắt setup và chạy
-
-Cell 0: Setup (gỡ torchao + clone code)
-
-```python
-import subprocess, os, shutil, sys
-subprocess.run(["pip","uninstall","-y","torchao"], capture_output=True)
-os.chdir("/kaggle/working")
-if os.path.exists("/kaggle/working/code"): shutil.rmtree("/kaggle/working/code")
-subprocess.run(["git","clone","https://github.com/lequangphat2006/Peft-Rank-Audit.git",
-                "/kaggle/working/code"], check=True)
-sys.path.insert(0, "/kaggle/working/code/code")
-```
-
-Local — phân tích
+**2. Chạy R1 (xác nhận):**
 
 ```bash
-# hướng cũ (pilot)
-python code/analyze_pilot.py results/pilot/results_C1_merged.csv --cell C1
-
-# hướng hiện hành (sau khi có results/global/global_merged.csv)
-python code/analyze_global.py results/global/global_merged.csv \
-  --primary_epochs 6 --delta_f1 0.01 \
-  --lr_decision results/tuning/tuning_decision.json \
-  --fixed_lr 2e-4 --logits_dir results/global/logits \
-  --out results/analysis/global_v1.json
-
-# chọn LR theo rank
-python code/analyze_tuning.py results/tuning/tuning.csv \
-  --out results/tuning/tuning_decision.json
+python run_pilot.py \
+  --data_dir /kaggle/input/datasets/lequangphat260206/peft-data \
+  --cell R1 --sweep_global --ranks 1 4 8 16 32 --epochs_list 3 6 \
+  --seeds 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 \
+  --lr_map results/tuning/tuning_decision.json --precision fp16
 ```
 
----
+**3. Phân tích (chạy từ thư mục gốc của repo):**
 
-## Quyết định thiết kế
+```bash
+python code/analyze_global.py results/global/global_merged.csv --delta_f1 0.01
+python code/analyze_v7_true.py        # CI bootstrap theo mẫu test cho từng rank
+python code/analyze_v7_drop_dup.py    # cần data/vsfc_sent/{train,test}.csv
+python code/analyze_tost_b1.py        # TOST cho PhoBERT
+```
 
-Chi tiết: `docs/decisions.md`.
-
-- Base model: FacebookAI/xlm-roberta-base
-- Num labels: 3 (sentiment)
-- Max length: 128
-- LoRA rank: toàn cục {1, 4, 8, 16, 32}
-- LoRA alpha: 2r (alpha_pattern)
-- Target modules: 6/layer (Q/K/V/O/FFN), 72 module
-- Loss: Cross-entropy không trọng số
-- Batch size: 32
-- Epochs: 3 và 6 (chính)
-- LR: Tune theo rank trên calibration, lưới {1e-4, 2e-4, 5e-4, 1e-3}, seed 400-402
-- LR full FT: 2e-5
-- Precision: fp16 (T4)
-
----
-
-## Giới hạn
-
-Chi tiết: `docs/limitations.md`.
-
-Một mô hình (XLM-R-base), một ngôn ngữ (tiếng Việt), chỉ encoder, chỉ phân loại văn bản.
-
-Lớp neutral chỉ ~4% train; Macro-F1 bị chi phối bởi lớp này. Near-dup test ~3.81% (char_wb, ≥ 0.95). LR tune một lần ở 6 epoch, tái dùng cho 3 epoch.
-
----
-
-## Tài liệu lưu trữ
-
-Xem `docs/archive/` cho các đề xuất trước đó và tài liệu bổ sung.
-
----
+Môi trường đã dùng: peft 0.21.2, transformers 5.16.1, torch 2.13 (xem `requirements.txt`).
 
 ## Tài liệu tham khảo
 
-Xem `docs/lit_review.md`.
+- Hu et al. (2022). LoRA. ICLR.
+- Zhang et al. (2023). AdaLoRA. ICLR.
+- Lee et al. (2026). Learning Rate Matters. arXiv:2602.04998.
+- Biderman et al. (2024). LoRA Learns Less and Forgets Less. TMLR.
 
 ---
 
-## Liên hệ
-
-Tác giả liên hệ: TS. Đinh Thị Hồng Huyên
-
-Đồng tác giả: Lê Quang Phát
-
-Đơn vị: Khoa Công nghệ Thông tin, Trường Đại học Quy Nhơn
-
-_Last updated: 2026-10-17 · Status: Experiments complete. Manuscript drafting phase._
+**Tác giả liên hệ:** TS. Đinh Thị Hồng Huyên
+**Đồng tác giả:** Lê Quang Phát
+**Đơn vị:** Khoa Công nghệ Thông tin, Trường Đại học Quy Nhơn
