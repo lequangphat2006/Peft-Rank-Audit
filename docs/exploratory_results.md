@@ -345,3 +345,13 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 - Việc tắt Regularization giúp F1 tăng từ 0.73 lên 0.78 (tăng ~5%).
 - Tuy nhiên, AdaLoRA vẫn thua xa LoRA Global Rank 8 (F1 ~ 0.834) mặc dù có cùng ngân sách tham số.
 - Điều này chứng minh cơ chế phân bổ rank (pruning dựa trên importance score) của AdaLoRA đã cắt nhầm các hướng cập nhật quan trọng, khiến mô hình mất năng lực phân biệt trên dataset nhỏ.
+### 10.11. Kết quả Tune LR cho PhoBERT (V4)
+
+**1. LR tối ưu trên calibration (3 seeds):**
+- Kết quả quét lưới {1e-4, 2e-4, 5e-4} cho thấy LR tối ưu của PhoBERT có sự dịch chuyển theo rank.
+- (Chi tiết xem trong `results/v4_phobert/phobert_lr_map.json`).
+
+**2. Kết quả B1 Final trên test (8 seeds):**
+- Việc tune LR giúp PhoBERT đạt được kết quả ổn định hơn.
+- So với B1 cũ (dùng LR cố định 2e-4), F1 của các rank đã có sự thay đổi, chứng minh tầm quan trọng của việc tune LR ngay cả với mô hình đơn ngữ.
+- Khác với XLM-R (nơi rank 1 là đủ), PhoBERT (mô hình nhỏ hơn) có xu hướng cần rank cao hơn để đạt F1 tương đương.
