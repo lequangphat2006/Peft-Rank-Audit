@@ -323,7 +323,7 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 **1. Phân tích H3 (Nhánh LR cố định 2e-4):**
 - Kết hợp V1 (3 epochs) và V1b (6 epochs) với LR cố định 2e-4.
 - Kết quả F-test: (Xem file `results/analysis/v1b_h3_fixed.json`).
-- *Kết luận:* Khẳng định lại một lần nữa việc H3 bị nhiễu bởi LR. Khi LR cố định, tương tác rank × epoch biến mất.
+- *Kết luận:* Tương tác rank × epoch VẪN CÒN ngay cả khi LR cố định (p = 0.0028). H3 hoàn toàn bền vững. Rank cao giúp hội tụ nhanh ở 3 epoch, nhưng rank thấp đuổi kịp khi có đủ 6 epoch.
 
 **2. Kết quả V5b (FP32, ghép cặp seed 400-402):**
 - Chạy lại các cấu hình từng sập ở FP16 (rank 16, 32 với LR 1e-3, 5e-4) bằng FP32.

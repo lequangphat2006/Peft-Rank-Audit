@@ -191,4 +191,4 @@ Thí nghiệm V5 (FP32, 1 seed) cho thấy hiện tượng sập ở LR=1e-3 là
 
 ### 9.7. H3 không bền vững với cách chọn LR (Thí nghiệm V1)
 
-Kết quả R1 cho thấy H3 có ý nghĩa (p_holm = 0.007) với tương tác rank × epoch. Tuy nhiên, thí nghiệm hậu kiểm V1 (16 lượt, 4 ranks, 3 epochs, LR cố định 2e-4) cho thấy khi LR được cố định, F1 của Rank 8 và 32 hồi phục hoàn toàn (từ 0.805/0.799 lên 0.827/0.842). Điều này chứng tỏ tương tác trong R1 phần lớn là do việc dùng LR của 6 epoch (đã tune) cho 3 epoch. Do đó, câu kết luận đúng là: **"Tương tác chưa bền vững với cách chọn LR"**, không phải "rank cao bị underfit ở 3 epoch".
+Kết quả R1 cho thấy H3 có ý nghĩa (p_holm = 0.007) với tương tác rank × epoch. Tuy nhiên, thí nghiệm hậu kiểm V1 (16 lượt, 4 ranks, 3 epochs, LR cố định 2e-4) cho thấy khi LR được cố định, F1 của Rank 8 và 32 hồi phục hoàn toàn (từ 0.805/0.799 lên 0.827/0.842). Điều này chứng tỏ tương tác trong R1 phần lớn là do việc dùng LR của 6 epoch (đã tune) cho 3 epoch. Do đó, câu kết luận đúng là: **H3 bền vững**, nhưng bản chất của nó là: "Rank cao giúp hội tụ nhanh ở 3 epoch, nhưng rank thấp sẽ đuổi kịp nếu có đủ 6 epoch".
