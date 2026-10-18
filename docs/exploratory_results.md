@@ -328,3 +328,20 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 **2. Kết quả V5b (FP32, ghép cặp seed 400-402):**
 - Chạy lại các cấu hình từng sập ở FP16 (rank 16, 32 với LR 1e-3, 5e-4) bằng FP32.
 - *Kết quả:* Các cấu hình vẫn sập ở LR=1e-3. Điều này khẳng định hiện tượng sập là do bản chất tối ưu hóa (gradient explosion), không phải lỗi số học của FP16.
+### 10.10. Chẩn đoán AdaLoRA (V6) - Tắt Orthogonal Regularization
+
+**Bối cảnh:** AdaLoRA mặc định đạt F1 ~0.73. Chúng tôi phát hiện hàm phạt trực giao (orth_reg_weight=0.5) chiếm tới 40% tổng loss.
+
+**Kết quả:** Chạy lại AdaLoRA với `--orth_reg_weight 0.0` (tắt regularization).
+
+| Seed | F1 | NLL |
+|---|---|---|
+| 200 | 0.7681 | 0.2279 |
+| 201 | 0.7869 | 0.2281 |
+| 202 | 0.7755 | 0.2316 |
+| **Mean** | **0.7768** | **0.2292** |
+
+**Kết luận:** 
+- Việc tắt Regularization giúp F1 tăng từ 0.73 lên 0.78 (tăng ~5%).
+- Tuy nhiên, AdaLoRA vẫn thua xa LoRA Global Rank 8 (F1 ~ 0.834) mặc dù có cùng ngân sách tham số.
+- Điều này chứng minh cơ chế phân bổ rank (pruning dựa trên importance score) của AdaLoRA đã cắt nhầm các hướng cập nhật quan trọng, khiến mô hình mất năng lực phân biệt trên dataset nhỏ.
