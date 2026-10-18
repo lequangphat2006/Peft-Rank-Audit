@@ -1,0 +1,63 @@
+{
+  "fig01_design": [
+    "tuning_full.csv",
+    "global_merged.csv",
+    "B1_final_merged.csv",
+    "B2_merged.csv",
+    "V1_merged.csv",
+    "V1b_merged.csv",
+    "V5_merged.csv",
+    "V5b_merged.csv",
+    "alpha_gpu*.csv"
+  ],
+  "fig02_main_f1_nll_vs_rank": [
+    "global_merged.csv"
+  ],
+  "fig03_equivalence_forest": [
+    "global_merged.csv",
+    "B1_final_merged.csv",
+    "B2_merged.csv",
+    "results/global/logits/*.npz"
+  ],
+  "fig04_lr_landscape": [
+    "tuning_full.csv",
+    "global_merged.csv"
+  ],
+  "fig05_h3_sign_reversal": [
+    "global_merged.csv",
+    "V1_merged.csv",
+    "V1b_merged.csv",
+    "interaction_terms.json"
+  ],
+  "fig06_calibration": [
+    "results/global/logits/*.npz (eval và cal)",
+    "global_merged.csv"
+  ],
+  "fig07_alpha_sensitivity": [
+    "alpha_gpu0.csv",
+    "alpha_gpu1.csv",
+    "V1b_merged.csv"
+  ],
+  "fig08_model_dependence": [
+    "global_merged.csv",
+    "B1_final_merged.csv",
+    "B2_merged.csv"
+  ],
+  "fig09_per_class_f1": [
+    "results/global/logits/*.npz"
+  ],
+  "fig10_fp16_vs_fp32": [
+    "tuning_full.csv",
+    "V5b_merged.csv"
+  ],
+  "fig11_baselines": [
+    "head.csv",
+    "full_lr2e5.csv",
+    "global_merged.csv",
+    "adalora_results.csv",
+    "V6_adalora_diag.csv"
+  ],
+  "fig12_adalora_rank_allocation": [
+    "results/adalora/adalora_rank/*.json"
+  ]
+}
