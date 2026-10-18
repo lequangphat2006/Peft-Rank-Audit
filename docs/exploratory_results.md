@@ -348,10 +348,19 @@ Không có một quy tắc "rank toàn cục" chung. Capacity need (nếu có) l
 ### 10.11. Kết quả Tune LR cho PhoBERT (V4)
 
 **1. LR tối ưu trên calibration (3 seeds):**
-- Kết quả quét lưới {1e-4, 2e-4, 5e-4} cho thấy LR tối ưu của PhoBERT có sự dịch chuyển theo rank.
-- (Chi tiết xem trong `results/v4_phobert/phobert_lr_map.json`).
+- Rank 1, 4, 16: Tối ưu ở LR = 2e-4.
+- Rank 32: Tối ưu ở LR = 1e-4.
 
 **2. Kết quả B1 Final trên test (8 seeds):**
-- Việc tune LR giúp PhoBERT đạt được kết quả ổn định hơn.
-- So với B1 cũ (dùng LR cố định 2e-4), F1 của các rank đã có sự thay đổi, chứng minh tầm quan trọng của việc tune LR ngay cả với mô hình đơn ngữ.
-- Khác với XLM-R (nơi rank 1 là đủ), PhoBERT (mô hình nhỏ hơn) có xu hướng cần rank cao hơn để đạt F1 tương đương.
+
+| Rank | F1 Mean | NLL Mean | F1 Neutral |
+|---|---|---|---|
+| 1 | 0.7989 | 0.2339 | 0.5003 |
+| 4 | 0.8108 | 0.2423 | 0.5290 |
+| 16 | 0.8138 | 0.2616 | 0.5382 |
+| 32 | **0.8194** | 0.2484 | 0.5513 |
+
+**Kết luận:** 
+- Việc tune LR giúp PhoBERT đạt được kết quả ổn định và cao hơn so với B1 cũ.
+- **Phát hiện quan trọng:** Khác với XLM-R (nơi rank 1 là đủ), PhoBERT (mô hình nhỏ hơn, đơn ngữ) lại cần rank cao hơn (rank 32) để đạt F1 tốt nhất. Điều này chứng minh "capacity need" phụ thuộc vào kiến trúc mô hình.
+- Tuy nhiên, cái giá phải trả là NLL tệ đi, nhất quán với hiện tượng overconfidence khi tăng rank.

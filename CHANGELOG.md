@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-18 — Cycle 4 (Hoàn thành toàn bộ thực nghiệm P1 & P2)
+
+### Đã hoàn thành
+- **V4 (Tune PhoBERT):** Đã quét lưới LR và chạy lại B1 với 8 seeds. Phát hiện quan trọng: PhoBERT cần rank 32 (F1=0.819) trong khi XLM-R chỉ cần rank 1. Chứng minh sự phụ thuộc kiến trúc mô hình.
+- **V6 (Chẩn đoán AdaLoRA):** Tắt orthogonal regularization giúp F1 tăng từ 0.73 lên 0.78, nhưng vẫn thua LoRA Rank 8 (0.834).
+- **V1b, V5b:** Chạy xong 6 epoch với LR cố định và FP32. Kết quả F-test xác nhận H3 bền vững ngay cả khi cố định LR.
+
+### Trạng thái
+- Toàn bộ thực nghiệm (R1, B1, B2, AdaLoRA, V1-V8) đã hoàn tất 100%.
+- Bộ dữ liệu sẵn sàng cho việc viết bản thảo.
+
 ## 2026-10-17 — Cycle 3b (Patch `run_pilot.py` cho LR per rank)
 
 ### Thay đổi
