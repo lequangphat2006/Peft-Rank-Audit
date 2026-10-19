@@ -135,8 +135,8 @@ def style_rank_axis(ax, lrs=None):
 
 
 def panel_label(ax, s):
-    # Đặt nhãn lùi ra ngoài trục tọa độ (x=-0.1) và căn lề phải (ha="right") để không đè lên tiêu đề
-    ax.text(-0.1, 1.02, s, transform=ax.transAxes, fontsize=11, fontweight="bold", ha="right", va="bottom")
+    # Đẩy nhãn cao hơn tiêu đề (y=1.1) và lùi sâu sang trái (x=-0.15) để không bao giờ đè
+    ax.text(-0.15, 1.1, s, transform=ax.transAxes, fontsize=12, fontweight="bold", ha="right", va="bottom")
 
 
 # ----- logits ---------------------------------------------------------------
