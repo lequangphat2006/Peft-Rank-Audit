@@ -1,0 +1,9 @@
+step=2.50 n=3 c2=0.2 sig=0.0136 pts=6 | accEucl=1.000 accQDA=1.000 covA=0.836 covB=0.850 wA=0.05 wB=0.07 G0=False
+step=2.50 n=5 c2=0.2 sig=0.0136 pts=6 | accEucl=1.000 accQDA=1.000 covA=0.891 covB=0.901 wA=0.04 wB=0.06 G0=False
+step=2.50 n=8 c2=0.2 sig=0.0136 pts=6 | accEucl=1.000 accQDA=1.000 covA=0.912 covB=0.920 wA=0.04 wB=0.05 G0=False
+step=2.00 n=3 c2=0.2 sig=0.0136 pts=7 | accEucl=1.000 accQDA=1.000 covA=0.838 covB=0.842 wA=0.06 wB=0.09 G0=False
+step=2.00 n=5 c2=0.2 sig=0.0136 pts=7 | accEucl=1.000 accQDA=1.000 covA=0.881 covB=0.899 wA=0.05 wB=0.08 G0=False
+step=2.00 n=8 c2=0.2 sig=0.0136 pts=7 | accEucl=1.000 accQDA=1.000 covA=0.919 covB=0.929 wA=0.05 wB=0.07 G0=False
+step=1.41 n=3 c2=0.2 sig=0.0136 pts=14 | accEucl=1.000 accQDA=1.000 covA=0.828 covB=0.847 wA=0.04 wB=0.06 G0=False
+step=1.41 n=5 c2=0.2 sig=0.0136 pts=14 | accEucl=1.000 accQDA=1.000 covA=0.880 covB=0.900 wA=0.03 wB=0.05 G0=False
+step=1.41 n=8 c2=0.2 sig=0.0136 pts=14 | accEucl=1.000 accQDA=1.000 covA=0.915 covB=0.912 wA=0.03 wB=0.04 G0=False

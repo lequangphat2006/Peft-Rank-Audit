@@ -1,0 +1,18 @@
+[param-boot] step=1.78 n=1 pts=9 | accEucl=0.921 accQDA=0.971 covA=0.950 covB=0.950 wA=1.58 wB=2.33 biasA=+0.069 biasB=+0.087 sdA=0.211 sdB=0.291 G0=True
+     cov_a {'k1': np.float64(0.931), 'muA': np.float64(0.962), 'khalf': np.float64(0.958)} cov_b {'k1': np.float64(0.956), 'muA': np.float64(0.967), 'khalf': np.float64(0.926)} accQDA_by {'k1': np.float64(0.992), 'muA': np.float64(0.927), 'khalf': np.float64(0.994)}
+[param-boot] step=1.78 n=3 pts=9 | accEucl=0.998 accQDA=0.999 covA=0.936 covB=0.942 wA=0.30 wB=0.43 biasA=+0.017 biasB=+0.023 sdA=0.068 sdB=0.095 G0=True
+     cov_a {'k1': np.float64(0.93), 'muA': np.float64(0.942), 'khalf': np.float64(0.938)} cov_b {'k1': np.float64(0.94), 'muA': np.float64(0.946), 'khalf': np.float64(0.941)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(0.998), 'khalf': np.float64(1.0)}
+[param-boot] step=2.50 n=3 pts=6 | accEucl=0.992 accQDA=0.996 covA=0.938 covB=0.940 wA=0.38 wB=0.55 biasA=+0.021 biasB=+0.026 sdA=0.080 sdB=0.113 G0=True
+     cov_a {'k1': np.float64(0.925), 'muA': np.float64(0.942), 'khalf': np.float64(0.946)} cov_b {'k1': np.float64(0.94), 'muA': np.float64(0.943), 'khalf': np.float64(0.937)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(0.989), 'khalf': np.float64(1.0)}
+[param-boot] step=2.00 n=3 pts=7 | accEucl=0.969 accQDA=0.993 covA=0.947 covB=0.946 wA=0.61 wB=0.90 biasA=+0.030 biasB=+0.036 sdA=0.110 sdB=0.155 G0=True
+     cov_a {'k1': np.float64(0.936), 'muA': np.float64(0.962), 'khalf': np.float64(0.944)} cov_b {'k1': np.float64(0.946), 'muA': np.float64(0.952), 'khalf': np.float64(0.939)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(0.98), 'khalf': np.float64(1.0)}
+[param-boot] step=2.00 n=5 pts=7 | accEucl=0.994 accQDA=0.999 covA=0.944 covB=0.946 wA=0.34 wB=0.49 biasA=+0.017 biasB=+0.021 sdA=0.074 sdB=0.107 G0=True
+     cov_a {'k1': np.float64(0.936), 'muA': np.float64(0.947), 'khalf': np.float64(0.948)} cov_b {'k1': np.float64(0.945), 'muA': np.float64(0.954), 'khalf': np.float64(0.94)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(0.998), 'khalf': np.float64(1.0)}
+[param-boot] step=2.00 n=8 pts=7 | accEucl=0.999 accQDA=1.000 covA=0.944 covB=0.943 wA=0.24 wB=0.34 biasA=+0.011 biasB=+0.013 sdA=0.057 sdB=0.082 G0=True
+     cov_a {'k1': np.float64(0.934), 'muA': np.float64(0.948), 'khalf': np.float64(0.949)} cov_b {'k1': np.float64(0.936), 'muA': np.float64(0.946), 'khalf': np.float64(0.946)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(1.0), 'khalf': np.float64(1.0)}
+[param-boot] step=1.41 n=3 pts=14 | accEucl=1.000 accQDA=1.000 covA=0.942 covB=0.942 wA=0.26 wB=0.37 biasA=+0.012 biasB=+0.016 sdA=0.060 sdB=0.086 G0=True
+     cov_a {'k1': np.float64(0.932), 'muA': np.float64(0.938), 'khalf': np.float64(0.954)} cov_b {'k1': np.float64(0.934), 'muA': np.float64(0.952), 'khalf': np.float64(0.94)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(0.999), 'khalf': np.float64(1.0)}
+[param-boot] step=1.41 n=5 pts=14 | accEucl=1.000 accQDA=1.000 covA=0.941 covB=0.941 wA=0.18 wB=0.26 biasA=+0.009 biasB=+0.011 sdA=0.045 sdB=0.064 G0=True
+     cov_a {'k1': np.float64(0.932), 'muA': np.float64(0.94), 'khalf': np.float64(0.95)} cov_b {'k1': np.float64(0.937), 'muA': np.float64(0.948), 'khalf': np.float64(0.939)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(1.0), 'khalf': np.float64(1.0)}
+[param-boot] step=1.41 n=8 pts=14 | accEucl=1.000 accQDA=1.000 covA=0.940 covB=0.941 wA=0.14 wB=0.20 biasA=+0.004 biasB=+0.006 sdA=0.036 sdB=0.050 G0=True
+     cov_a {'k1': np.float64(0.93), 'muA': np.float64(0.944), 'khalf': np.float64(0.945)} cov_b {'k1': np.float64(0.941), 'muA': np.float64(0.946), 'khalf': np.float64(0.934)} accQDA_by {'k1': np.float64(1.0), 'muA': np.float64(1.0), 'khalf': np.float64(1.0)}
