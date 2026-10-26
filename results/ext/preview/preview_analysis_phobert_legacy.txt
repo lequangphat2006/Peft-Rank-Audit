@@ -1,0 +1,28 @@
+
+=== A. Nhánh chính (LR theo rank) | 8 seed ===
+      n_seeds      lr  f1_mean   f1_sd  f1_neu  nll_mean  nll_sd  crash_rate
+rank                                                                        
+1           8  0.0002   0.7989  0.0116  0.5003    0.2339  0.0057         0.0
+4           8  0.0002   0.8108  0.0065  0.5290    0.2423  0.0077         0.0
+16          8  0.0002   0.8138  0.0110  0.5382    0.2616  0.0136         0.0
+32          8  0.0001   0.8194  0.0069  0.5513    0.2484  0.0106         0.0
+
+=== B. Ước lượng cho PhoBERT (kiểu H1/H2) ===
+F1 tổng rank 1->32: +0.0190 CI95 [+0.0094,+0.0285]
+  TOST delta=0.01: p=0.9690 CI90 [+0.0113,+0.0266] -> KHÔNG chứng minh tương đương
+  TOST delta=0.02: p=0.4013 CI90 [+0.0113,+0.0266] -> KHÔNG chứng minh tương đương
+NLL tổng: +0.0207 CI95 [+0.0120,+0.0295] p(tăng)=0.0004
+
+=== C. Lệch tuyến tính và bão hòa ===
+F-test log2(rank) tuyến tính vs phân loại: F=0.935 (df 2) p=0.4082
+Rank nhỏ nhất đạt trong 0,005 của F1 lớn nhất: 32
+
+=== D. Độ nhạy theo số seed (4 vs tất cả) ===
+4 seed đầu: F1 tổng +0.0113 CI95 [+0.0026,+0.0199] | TOST 0,01 p=0.6642
+4 seed mới: F1 tổng +0.0266 CI95 [+0.0094,+0.0439] | TOST 0,01 p=0.9728
+8 seed: F1 tổng +0.0190 CI95 [+0.0094,+0.0285] | TOST 0,01 p=0.9690
+
+=== E. Các nhánh độ bền ===
+fixed_lr: rank [1, 4, 16], 8 seed, F1 tổng +0.0150 CI95 [+0.0030,+0.0269]
+
+Đã lưu results/ext/preview/preview_analysis_phobert_legacy.json

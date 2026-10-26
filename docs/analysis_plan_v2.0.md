@@ -284,6 +284,8 @@ Ngưỡng 0,005 ≈ một sai số chuẩn theo seed với SD dư 0,0081 và 3 s
  (tách LR khỏi rank trong H3) | Reviewer chỉ ra H3 có thể bị confound bởi LR (rank 8 và 32 có LR nhỏ nhất nên dễ underfit ở 3 epoch). Chạy lại rank 1, 4, 8, 32 ở 3 epoch với LR cố định 2e-4 (16 lượt). Quy tắc: (1) Nếu tương tác rank x epoch biến mất -> "Tương tác nảy sinh do chọn LR per rank". (2) Nếu vẫn còn -> "Độ nhạy rank phụ thuộc ngân sách" (giữ H3). (3) Nếu ngược dấu -> H3 không bền. Phân tích này gắn nhãn "bổ sung sau khi thấy dữ liệu". | Củng cố tính vững chắc của H3 |
 
 
+| 2026-10-26 | Phần mở rộng EXT-1 (PhoBERT 5 rank × 16 seed, quy trình LR như XLM-R, họ xác nhận E1–E3) được đăng ký ở **`docs/analysis_plan_v2.1_extension.md`** (v2.0 không sửa) | Đề xuất của giảng viên hướng dẫn: thống nhất thiết kế thực nghiệm giữa PhoBERT và XLM-R | Thêm câu hỏi so sánh hai mô hình; không đổi H1–H3 của XLM-R |
+
 ---
 
 ## 10. Kết quả được phép diễn giải trước

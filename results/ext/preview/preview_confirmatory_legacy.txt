@@ -1,0 +1,15 @@
+
+=== HỌ XÁC NHẬN EXT-1 (Holm m=3) | PhoBERT 8 seed, XLM-R 16 seed, ranks [1, 4, 16, 32] ===
+E1 tương tác: Delta = +0.0220 CI95 [+0.0117,+0.0322] (PhoBERT +0.0190, XLM-R -0.0030) Welch p=0.0005214 p_holm=0.001231 | hoán vị p=5e-05
+E2 PhoBERT TOST delta=0.01: tổng +0.0190 CI90 [+0.0113,+0.0266] p=0.969 p_holm=0.969 -> KHÔNG chứng minh tương đương
+E3 PhoBERT NLL: +0.0207 p(tăng)=0.0004105 p_holm=0.001231
+   (mô hình hỗn hợp: hệ số tương tác quy đổi +0.0220, p=1.17e-05)
+
+(không có --logits_p/--logits_x: bỏ qua bootstrap hai tầng)
+
+Độ bền của E1:
+  chưa có dữ liệu nhánh LR cố định / LR tốt nhì cho cả hai mô hình
+
+Quy tắc kết luận: CHƯA THỂ KẾT LUẬN: còn thiếu bootstrap_ci_excludes_zero, sign_agrees_fixed_lr, sign_agrees_second_best
+  điều kiện: {'p_holm_E1_lt_0_05': True, 'bootstrap_ci_excludes_zero': None, 'sign_agrees_fixed_lr': None, 'sign_agrees_second_best': None}
+Đã lưu results/ext/preview/preview_confirmatory_legacy.json

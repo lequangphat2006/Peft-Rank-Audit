@@ -50,6 +50,24 @@ Thiết lập chính (R1): XLM-R-base, UIT-VSFC, 16 seed (200–215), 5 rank {1,
 
 ---
 
+## Phần mở rộng EXT-1 (PhoBERT + LoRA, theo đề xuất của giảng viên)
+
+Trạng thái: **đã chuẩn bị giao thức, mã và kiểm thử; chưa chạy thực nghiệm GPU**. Mục tiêu: PhoBERT + LoRA đủ 5 rank {1, 4, 8, 16, 32}, 16 seed, 6 epoch, cùng quy trình chọn LR và đánh giá như XLM-R, và một câu hỏi xác nhận về tương tác mô hình × rank (E1).
+
+| Cần xem | File |
+|---|---|
+| Giao thức đã đăng ký (E1–E3, quy tắc kết luận) | `docs/analysis_plan_v2.1_extension.md` |
+| Cái gì đồng nhất / không thể đồng nhất giữa hai mô hình | `docs/ext_design_parity.md` |
+| Từng bước chạy, thời gian GPU, danh sách kiểm tra | `docs/ext_runbook.md`, `scripts/run_ext_phobert.sh` |
+| Văn bản cập nhật OSF | `docs/ext_osf_amendment.md` |
+| Mã phân tích | `code/ext_*.py` (kiểm thử: `python -m pytest code/test_ext_analysis.py -q`) |
+| Kết quả xem trước trên dữ liệu cũ (không xác nhận) | `results/ext/preview/` |
+
+```bash
+export DATA_P=...  DATA_X=...  NGPU=2
+bash scripts/run_ext_phobert.sh preflight_pre   # rồi tune_base -> lr_rule_base -> tune_ext -> lr_rule_final -> final ...
+```
+
 ## Hạn chế đã biết
 
 - Kết luận tương đương chỉ vững cho XLM-R-base trên UIT-VSFC và chỉ theo phương sai giữa các seed; B1 (PhoBERT) và B2 cho kết quả khác. Chưa có task hay mô hình thứ ba chạy đủ quy trình như R1, và chưa có decoder.
@@ -82,12 +100,14 @@ peft-rank-audit/
 │   ├── run_adalora.py           Baseline AdaLoRA (thăm dò)
 │   ├── analyze_global.py        Phân tích H1-H3
 │   ├── analyze_tuning.py        Chọn LR theo rank
-│   ├── analyze_tost_b1.py       TOST cho B1 (PhoBERT)
+│   ├── analyze_tost_b1.py       TOST cho B1 (PhoBERT; gọi ext_analyze_phobert.py)
+│   ├── ext_*.py                 Phần mở rộng EXT-1 (xem docs/ext_runbook.md)
 │   ├── analyze_v7_true.py       Bootstrap trên mẫu test (từng rank)
 │   ├── analyze_v7_drop_dup.py   Kiểm tra trên test đã loại near-duplicate
 │   └── ...                      Các script phân tích khác
 ├── docs/
 │   ├── analysis_plan_v2.0.md    Kế hoạch đăng ký trước (mục 9: sai lệch)
+│   ├── analysis_plan_v2.1_extension.md  Bản sửa đổi EXT-1 (PhoBERT, E1–E3)
 │   ├── limitations.md           Hạn chế
 │   ├── exploratory_results.md   Nhật ký kết quả (R1, B1, B2, V1-V8)
 │   └── ...
@@ -95,7 +115,8 @@ peft-rank-audit/
 │   ├── global/                  R1 (160 lượt) và logits (.npz)
 │   ├── tuning/                  Tune LR (69 lượt)
 │   ├── adalora/                 AdaLoRA thăm dò
-│   ├── v4_phobert/              Tune LR cho PhoBERT
+│   ├── v4_phobert/              Tune LR cho PhoBERT (cũ)
+│   ├── ext/                     EXT-1: preview + (sẽ có) kết quả PhoBERT 5 rank × 16 seed
 │   └── analysis/                JSON tổng hợp và biểu đồ
 ├── README.md
 └── CHANGELOG.md

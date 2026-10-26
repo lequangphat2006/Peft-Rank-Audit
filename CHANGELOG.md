@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-10-26 — Cycle 5 (Chuẩn bị phần mở rộng EXT-1 theo đề xuất của giảng viên)
+
+### Thêm (chưa chạy thực nghiệm GPU nào; chỉ chuẩn bị, kiểm thử và công bố giao thức)
+- **Giao thức:** `docs/analysis_plan_v2.1_extension.md` (đăng ký họ xác nhận E1–E3, nhánh độ bền, quy tắc kết luận), `docs/ext_design_parity.md`, `docs/ext_runbook.md`, `docs/ext_osf_amendment.md`. Mục 9 của `analysis_plan_v2.0.md` có thêm một dòng tham chiếu; v2.0 không bị sửa.
+- **Mã:** `code/ext_common.py`, `ext_preflight.py`, `ext_lr_rule.py`, `ext_merge.py`, `ext_analyze_phobert.py`, `ext_confirmatory.py`, `ext_calibration.py`, `ext_deltaw.py`, `ext_alpha.py`, `ext_make_figures.py`, `analyze_tost_b1.py` (README đã nhắc nhưng bản trước không có file), `test_ext_analysis.py` (14 kiểm thử).
+- **Vận hành:** `scripts/run_ext_phobert.sh` (các giai đoạn tune → quy tắc LR → chạy chính → độ bền → phân tích).
+- **Xem trước:** `results/ext/preview/` (chỉ dùng dữ liệu cũ, không phải kết quả xác nhận).
+
+### Phát hiện khi rà soát (cần xử lý trước khi chạy)
+- `results/v4_phobert/phobert_lr_map.json` **thiếu rank 8** → `run_pilot.py` bỏ qua rank 8 mà không báo lỗi.
+- Lưới LR PhoBERT cũ {1e-4, 2e-4, 5e-4} khác XLM-R; rank 32 chọn 1e-4 ở biên dưới; seed tune cũ (300–302) trùng seed chạy chính.
+- Logits và ΔW của B1/V4 không có trong repo → cần chạy lại (cell B1X) để bootstrap ghép cặp và hiệu chuẩn.
+
+### Đính chính (erratum) cho mục Cycle 4 bên dưới
+- Câu "Chứng minh sự phụ thuộc kiến trúc mô hình" quá lời: chỉ có hai mô hình khác nhau đồng thời về tokenizer, tách từ, từ vựng, dữ liệu tiền huấn luyện và kích thước. Diễn đạt đúng: "ảnh hưởng của rank phụ thuộc mô hình" (cần E1).
+- Câu "F-test xác nhận H3 bền vững ngay cả khi cố định LR" **mâu thuẫn** với README và kế hoạch phân tích: hai nhánh LR cho tương tác **ngược dấu** (+0,017 và −0,033) và README kết luận "không bền vững theo quy tắc đã đăng ký". Lấy README làm chuẩn.
+
+
 ## 2026-10-18 — Cycle 4 (Hoàn thành toàn bộ thực nghiệm P1 & P2)
 
 ### Đã hoàn thành

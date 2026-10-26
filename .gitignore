@@ -43,3 +43,11 @@ results/**/logits/
 results/**/deltaw/
 # Thu muc tam, khong commit
 _inbox/
+
+# Model checkpoints (never push)
+*.pt
+*.ckpt
+*.safetensors
+*.bin
+results/**/*.pt
+results/**/*.ckpt
