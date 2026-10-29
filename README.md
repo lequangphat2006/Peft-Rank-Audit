@@ -1,10 +1,12 @@
-# PEFT Rank Audit
+﻿# PEFT Rank Audit
 
 **Kiểm toán ảnh hưởng của rank LoRA toàn cục đến khả năng phân biệt và hiệu chuẩn**
 
 *Rank LoRA toàn cục có cải thiện Macro-F1 không, có làm thay đổi NLL không, và hiệu ứng đó có phụ thuộc ngân sách huấn luyện không?*
 
 **Đăng ký trước (pre-registration):** [10.17605/OSF.IO/A2MN5](https://doi.org/10.17605/OSF.IO/A2MN5) (công khai 2026-10-16)
+
+**Mã nguồn (Code DOI):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23770237.svg)](https://doi.org/10.5281/zenodo.23770237)
 
 > **Trạng thái (2026-10-18):** Đã hoàn thành các thực nghiệm xác nhận (R1, B1, B2) và các phân tích hậu kiểm (V1–V8, độ nhạy α, AdaLoRA). Đang soạn bản thảo. Mọi phân tích được thiết kế sau khi đã thấy dữ liệu đều được gắn nhãn "hậu kiểm" hoặc "thăm dò" và ghi trong mục 9 của kế hoạch phân tích.
 
