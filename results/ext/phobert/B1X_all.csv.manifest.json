@@ -1,0 +1,34 @@
+{
+ "out": "results/ext/phobert/B1X_all.csv",
+ "n_runs": 120,
+ "sources": [
+  "results/ext/phobert/B1X_merged.csv",
+  "results/ext/phobert/B1X_gpu0.csv",
+  "results/ext/phobert/B1X_gpu1.csv"
+ ],
+ "n_duplicates_dropped": 0,
+ "conflicts": [],
+ "missing": [],
+ "meta": {
+  "precision": [
+   "fp16"
+  ],
+  "git": [
+   "ea2f1d7+dirty"
+  ],
+  "batch_size": [
+   "32"
+  ],
+  "max_len": [
+   "128"
+  ],
+  "alpha_mode": [
+   "2r"
+  ],
+  "class_weight": [
+   "none"
+  ]
+ },
+ "sha256": "11b951385d6cc86bfdba1d0f5f465651d4a4f3a41b8a85e102c5f9ed365c52b8",
+ "complete": true
+}
