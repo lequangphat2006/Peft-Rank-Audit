@@ -1,8 +1,8 @@
 """ext_make_figures.py - 3 hình cho phần mở rộng EXT-1 (cùng phong cách make_figures.py: PNG + PDF).
 
-  fig13_two_model_f1_vs_rank : Macro-F1 theo rank, hai mô hình, trung bình +- CI 95% theo seed (nhánh LR theo rank)
-  fig14_interaction_forest   : hiệu ứng rank 1->32 của từng mô hình và hiệu (tương tác), CI seed và CI bootstrap hai tầng
-  fig15_phobert_lr_landscape : F1 calibration theo (rank, LR) của vòng tune, đánh dấu LR được chọn và lượt sập
+  fig13_two_model_f1_vs_rank : Macro-F1 by rank, hai mô hình, trung bình +- 95% CI over seeds (nhánh LR by rank)
+  fig14_interaction_forest   : effect rank 1->32 của từng mô hình và hiệu (interaction), CI seed và CI bootstrap hai tầng
+  fig15_phobert_lr_landscape : F1 calibration vs (rank, LR) của vòng tune, đánh dấu LR selected và lượt collapse
 
   python code/ext_make_figures.py --csv_p ... --lr_map_p ... --csv_x ... --lr_map_x ... \
       --tune_p results/ext/phobert/tune_all.csv --decision_p results/ext/phobert/tuning_decision.json \
@@ -45,8 +45,8 @@ def fig13(a):
         ax.errorbar(x, m.values, yerr=ci.values, marker="o", capsize=3, color=COL[name],
                     label=f"{name} (n={int(n.min())}-{int(n.max())} seed)")
     ax.set_xticks(np.log2(a.ranks)); ax.set_xticklabels(a.ranks)
-    ax.set_xlabel("Rank LoRA (thang log2)"); ax.set_ylabel("Macro-F1 (test)")
-    ax.set_title("Macro-F1 theo rank: hai mô hình (CI 95% theo seed)")
+    ax.set_xlabel("LoRA Rank (log2 scale)"); ax.set_ylabel("Macro-F1 (test)")
+    ax.set_title("Macro-F1 vs Rank: PhoBERT vs XLM-R (95% CI over seeds)")
     ax.grid(alpha=.3); ax.legend()
     save(fig, a.outdir, "fig13_two_model_f1_vs_rank")
 
@@ -61,21 +61,21 @@ def fig14(a):
         return [mean - h, mean + h]
     rows = [("PhoBERT", e1["total_p"], ci(e1["total_p"], e1["sd_p"], e1["n_a"])),
             ("XLM-R", e1["total_x"], ci(e1["total_x"], e1["sd_x"], e1["n_b"])),
-            ("Tương tác (P - X)", e1["diff"], e1["ci95"])]
+            ("Interaction (P - X)", e1["diff"], e1["ci95"])]
     boot = c.get("bootstrap")
     fig, ax = plt.subplots(figsize=(6.4, 3.6))
     for i, (lab, est, cint) in enumerate(rows):
         y = 2 - i
         col = COL.get(lab, "#333333")
         ax.plot(cint, [y, y], color=col, lw=2.2, solid_capstyle="round",
-                label="CI 95% theo seed" if i == 2 else None)
+                label="95% CI over seeds" if i == 2 else None)
         ax.plot([est], [y], "o", color=col, ms=7)
-        if lab.startswith("Tương tác") and boot:
+        if lab.startswith("Interaction") and boot:
             ax.plot(boot["two_level"]["ci95_delta"], [y - .22, y - .22], color="#7f8c8d", lw=2.2,
                     label="CI 95% bootstrap hai tầng (test + seed)")
     ax.axvline(0, color="grey", ls="--", lw=1)
     ax.set_yticks([2, 1, 0]); ax.set_yticklabels([r[0] for r in rows]); ax.set_ylim(-0.6, 2.5)
-    ax.set_xlabel("Tổng hiệu ứng rank 1→32 lên Macro-F1"); ax.set_title("Phụ thuộc mô hình: hiệu ứng rank và tương tác")
+    ax.set_xlabel("Total effect of rank 1→32 on Macro-F1"); ax.set_title("Model Dependence: Rank Effect and Interaction")
     ax.grid(alpha=.3, axis="x")
     h, l = ax.get_legend_handles_labels()
     if h:
@@ -102,10 +102,10 @@ def fig15(a):
             v = piv.values[i, j]
             if np.isnan(v):
                 continue
-            s = f"{v:.3f}" + (f"\nsập {crash.values[i, j]:.0%}" if crash.values[i, j] > 0 else "")
+            s = f"{v:.3f}" + (f"\ncollapse {crash.values[i, j]:.0%}" if crash.values[i, j] > 0 else "")
             ax.text(j, i, s, ha="center", va="center", fontsize=7, color="w" if v < 0.76 else "k",
                     fontweight="bold" if np.isclose(best.get(int(r), -1), lr) else None)
-    ax.set_xlabel("Learning rate"); ax.set_ylabel("Rank"); ax.set_title("PhoBERT: F1 calibration theo (rank, LR); đậm = LR được chọn")
+    ax.set_xlabel("Learning rate"); ax.set_ylabel("Rank"); ax.set_title("PhoBERT: F1 Calibration vs (Rank, LR); bold = selected LR")
     fig.colorbar(im, ax=ax, label="Macro-F1 calibration")
     save(fig, a.outdir, "fig15_phobert_lr_landscape")
 
