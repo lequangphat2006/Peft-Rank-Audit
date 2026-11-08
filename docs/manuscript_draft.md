@@ -14,7 +14,7 @@ A critical, yet often overlooked, confounder in rank comparison is the learning 
 In this paper, we conduct a preregistered audit to answer: *How much does global LoRA rank matter for discrimination and calibration when LR is tuned per rank?* Our contributions are fourfold:
 1. **Preregistered Equivalence Audit:** Using TOST on 160 runs on XLM-R/UIT-VSFC, we demonstrate that F1 is equivalent from rank 1 to 32 at the seed-level. However, we transparently report that sample-level bootstrap widens the CI to [-0.013, +0.006], meaning test-set noise still poses a boundary to absolute equivalence. Meanwhile, NLL significantly degrades with higher ranks.
 2. **The LR Confounder (The Twist):** We show that the apparent rank-by-epoch interaction reverses sign when LR is fixed (from +0.017 to -0.033). This proves that prior "rank effects" may be artifacts of hyperparameter misconfiguration rather than inherent model properties.
-3. **Model-Dependence:** Through extensions to PhoBERT, we demonstrate that rank effects are architecture-dependent: while rank 1 suffices for XLM-R, smaller models require higher ranks to achieve optimal F1.
+3. **Model-Dependence:** Through extensions to PhoBERT, we demonstrate that rank effects are model-protocol dependent: while rank 1 suffices for XLM-R, smaller models require higher ranks to achieve optimal F1.
 4. **Adaptive Rank Baseline:** We show that AdaLoRA underperforms a simple global rank 8 under matched conditions, suggesting that gradient-based importance scores may be optimizing on noise.
 
 ## 2. Related Work
@@ -63,7 +63,7 @@ The preregistered H3 showed a significant interaction (\(p_{holm} = 0.007\)). Ho
 AdaLoRA underperforms our simple baselines. As shown in **Figure 11**, AdaLoRA achieves an F1 of ~0.73. Even when we disable its orthogonal regularization (**V6 diagnostic**), F1 only rises to 0.78, still significantly lower than a simple LoRA rank 8 (F1 0.834). **Figure 12** shows that AdaLoRA's final rank allocation is stable across seeds (Kendall \(\tau \approx 0.66\)), suggesting that gradient-based importance scores may be consistently pruning directions that are critical for the downstream task.
 
 ### 5.4. Model Dependence (PhoBERT & AG News)
-**Figure 8** demonstrates that rank effects are architecture-dependent. While XLM-R exhibits equivalence, PhoBERT (a smaller model) shows a positive rank effect. At 6 epochs, PhoBERT's F1 increases from 0.798 (rank 1) to 0.819 (rank 32), though NLL also degrades. On AG News, the effect is practically flat, indicating task dependence.
+**Figure 8** demonstrates that rank effects are model-protocol dependent. While XLM-R exhibits equivalence, PhoBERT (a smaller model) shows a positive rank effect. At 6 epochs, PhoBERT's F1 increases from 0.798 (rank 1) to 0.819 (rank 32), though NLL also degrades. On AG News, the effect is practically flat, indicating task dependence.
 
 ## 6. Conclusion
 This paper evaluated the effect of global LoRA rank under a preregistered equivalence and calibration audit. We find that rank 1 is sufficient for XLM-R on UIT-VSFC, while increasing rank induces overconfidence (higher NLL). Critically, we demonstrate that observed "rank effects" (such as rank × epoch interactions) are highly sensitive to confounders like LR tuning and scaling factors. Finally, a simple global rank 8 outperforms the complex AdaLoRA baseline. Practitioners should prioritize LR tuning over rank scaling.
@@ -78,3 +78,7 @@ This paper evaluated the effect of global LoRA rank under a preregistered equiva
 - Lee et al. (2026) — Learning Rate Matters. arXiv:2602.04998.
 - Biderman et al. (2024) — LoRA Learns Less and Forgets Less. TMLR.
 - Guo et al. (2017) — On calibration of modern neural networks. ICML.
+### Statistical Power and Reproducibility Limits
+Our design with 16 seeds provides sufficient power to detect interaction effects of magnitude 0.009 or larger. 
+The observed E1 interaction (Delta = +0.0073) falls just below this threshold (p_holm = 0.065). We therefore report it as "suggestive evidence" rather than a confirmed finding. 
+Furthermore, we acknowledge that the legacy B1/V4 results could not be exactly reproduced due to missing environment logs, and we have completely replaced them with the strictly controlled B1X (16 seeds, locked environment) results presented here.

@@ -14,16 +14,16 @@
 - Logits và ΔW của B1/V4 không có trong repo → cần chạy lại (cell B1X) để bootstrap ghép cặp và hiệu chuẩn.
 
 ### Đính chính (erratum) cho mục Cycle 4 bên dưới
-- Câu "Chứng minh sự phụ thuộc kiến trúc mô hình" quá lời: chỉ có hai mô hình khác nhau đồng thời về tokenizer, tách từ, từ vựng, dữ liệu tiền huấn luyện và kích thước. Diễn đạt đúng: "ảnh hưởng của rank phụ thuộc mô hình" (cần E1).
-- Câu "F-test xác nhận H3 bền vững ngay cả khi cố định LR" **mâu thuẫn** với README và kế hoạch phân tích: hai nhánh LR cho tương tác **ngược dấu** (+0,017 và −0,033) và README kết luận "không bền vững theo quy tắc đã đăng ký". Lấy README làm chuẩn.
+- Câu "Bằng chứng về sự phụ thuộc của mô hình vào protocol (model-protocol dependence)" quá lời: chỉ có hai mô hình khác nhau đồng thời về tokenizer, tách từ, từ vựng, dữ liệu tiền huấn luyện và kích thước. Diễn đạt đúng: "ảnh hưởng của rank phụ thuộc mô hình" (cần E1).
+- Câu "H3 không bền vững khi cố định LR (dấu tương tác bị đảo ngược)" **mâu thuẫn** với README và kế hoạch phân tích: hai nhánh LR cho tương tác **ngược dấu** (+0,017 và −0,033) và README kết luận "không bền vững theo quy tắc đã đăng ký". Lấy README làm chuẩn.
 
 
 ## 2026-10-18 — Cycle 4 (Hoàn thành toàn bộ thực nghiệm P1 & P2)
 
 ### Đã hoàn thành
-- **V4 (Tune PhoBERT):** Đã quét lưới LR và chạy lại B1 với 8 seeds. Phát hiện quan trọng: PhoBERT cần rank 32 (F1=0.819) trong khi XLM-R chỉ cần rank 1. Chứng minh sự phụ thuộc kiến trúc mô hình.
+- **V4 (Tune PhoBERT):** Đã quét lưới LR và chạy lại B1 với 8 seeds. Phát hiện quan trọng: PhoBERT có tương tác rank khác XLM-R trong điều kiện tune LR tự động (F1=0.819) trong khi XLM-R chỉ cần rank 1. Bằng chứng về sự phụ thuộc của mô hình vào protocol (model-protocol dependence).
 - **V6 (Chẩn đoán AdaLoRA):** Tắt orthogonal regularization giúp F1 tăng từ 0.73 lên 0.78, nhưng vẫn thua LoRA Rank 8 (0.834).
-- **V1b, V5b:** Chạy xong 6 epoch với LR cố định và FP32. Kết quả F-test xác nhận H3 bền vững ngay cả khi cố định LR.
+- **V1b, V5b:** Chạy xong 6 epoch với LR cố định và FP32. Kết quả H3 không bền vững khi cố định LR (dấu tương tác bị đảo ngược).
 
 ### Trạng thái
 - Toàn bộ thực nghiệm (R1, B1, B2, AdaLoRA, V1-V8) đã hoàn tất 100%.
