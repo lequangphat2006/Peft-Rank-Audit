@@ -13,15 +13,6 @@ cả hai mô hình vì cùng một tập test) lẫn SEED trong từng mô hình
 Quy tắc kết luận (ghi trước): chỉ được viết "ảnh hưởng của rank phụ thuộc mô hình" khi
   p_holm(E1) < 0,05  VÀ  CI bootstrap hai tầng của Delta không chứa 0  VÀ  dấu của Delta giống nhau ở nhánh
   LR cố định và nhánh LR tốt nhì (nếu đã có dữ liệu). Nếu không thì viết "chưa đủ bằng chứng".
-
-Ví dụ:
-  python code/ext_confirmatory.py \
-    --csv_p results/ext/phobert/B1_ext_merged.csv --lr_map_p results/ext/phobert/phobert_lr_map_v2.json \
-    --decision_p results/ext/phobert/tuning_decision.json \
-    --csv_x results/global/global_merged.csv results/posthoc/V1b_merged.csv \
-    --lr_map_x results/tuning/tuning_decision.json --decision_x results/tuning/tuning_decision.json \
-    --logits_p results/ext/phobert/logits --logits_x results/global/logits \
-    --out results/ext/phobert/confirmatory.json
 """
 import argparse
 import json
@@ -43,6 +34,10 @@ def load_many(paths):
 
 
 def e1_from(dp, dx, ranks, y="macro_f1"):
+    # FIX LỖI TRÙNG LẶP: Xóa các dòng bị trùng (seed, rank) trước khi tính toán
+    dp = dp.drop_duplicates(subset=['seed', 'rank'], keep='first')
+    dx = dx.drop_duplicates(subset=['seed', 'rank'], keep='first')
+    
     sp, drop_p = per_seed_effects(dp, y, ranks)
     sx, drop_x = per_seed_effects(dx, y, ranks)
     if len(sp) < 3 or len(sx) < 3:
@@ -219,15 +214,25 @@ def main():
 
     # ---- nhánh độ bền cho E1
     rob = {}
-    dfx_fixed, dfp_fixed = select_fixed_lr(dx_all, a.fixed_lr), select_fixed_lr(dp_all, a.fixed_lr)
+    
+    # Đã sửa: Ép kiểu cell để tránh lấy nhầm nhánh B1X_SECOND cho nhánh Fixed
+    dp_fixed_src = dp_all[dp_all['cell'] == 'B1X']
+    dfx_fixed = select_fixed_lr(dx_all, a.fixed_lr)
+    dfp_fixed = select_fixed_lr(dp_fixed_src, a.fixed_lr)
+    
     r = e1_from(dfp_fixed, dfx_fixed, a.ranks)
     if r:
         rob["fixed_lr"] = {k: r[0][k] for k in ("diff", "ci95", "p", "seeds_p", "seeds_x")}
+        
     if a.decision_p and a.decision_x and os.path.exists(a.decision_p) and os.path.exists(a.decision_x):
-        r = e1_from(select_branch(dp_all, load_second_best(a.decision_p)),
-                    select_branch(dx_all, load_second_best(a.decision_x)), a.ranks)
-        if r:
-            rob["second_best_lr"] = {k: r[0][k] for k in ("diff", "ci95", "p", "seeds_p", "seeds_x")}
+        try:
+            r_sec = e1_from(select_branch(dp_all, load_second_best(a.decision_p)),
+                            select_branch(dx_all, load_second_best(a.decision_x)), a.ranks)
+            if r_sec:
+                rob["second_best_lr"] = {k: r_sec[0][k] for k in ("diff", "ci95", "p", "seeds_p", "seeds_x")}
+        except Exception as e:
+            print(f"Không thể tính nhánh second_best: {e}")
+            
     out["robustness_E1"] = rob
     print("\nĐộ bền của E1:")
     if not rob:
