@@ -114,6 +114,50 @@
     206,
     207
    ]
+  },
+  "second_best_lr": {
+   "diff": -0.034062242398648655,
+   "ci95": [
+    -0.11156486093139048,
+    0.04344037613409316
+   ],
+   "p": 0.36398208650967545,
+   "seeds_p": [
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    313,
+    314,
+    315
+   ],
+   "seeds_x": [
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215
+   ]
   }
  },
  "decision_rule": {
@@ -121,7 +165,7 @@
    "p_holm_E1_lt_0_05": false,
    "bootstrap_ci_excludes_zero": null,
    "sign_agrees_fixed_lr": false,
-   "sign_agrees_second_best": null
+   "sign_agrees_second_best": false
   },
   "verdict": "CH\u01afA \u0110\u1ee6 B\u1eb0NG CH\u1ee8NG cho 'ph\u1ee5 thu\u1ed9c m\u00f4 h\u00ecnh'"
  }

@@ -1,0 +1,35 @@
+{
+ "out": "results/ext/xlmr/XLM_total.csv",
+ "n_runs": 256,
+ "sources": [
+  "results/ext/xlmr/XLM_all.csv",
+  "results/ext/xlmr/XLM_SECOND_merged.csv"
+ ],
+ "n_duplicates_dropped": 0,
+ "conflicts": [],
+ "missing": [],
+ "meta": {
+  "precision": [
+   "fp16"
+  ],
+  "git": [
+   "334eda7+dirty",
+   "c81c83a",
+   "ea2f1d7+dirty"
+  ],
+  "batch_size": [
+   "32"
+  ],
+  "max_len": [
+   "128"
+  ],
+  "alpha_mode": [
+   "2r"
+  ],
+  "class_weight": [
+   "none"
+  ]
+ },
+ "sha256": "5fcba83abe6f23bf5cf4ef50dc2aa5080921e0e3fa071c370e6e3bc8c2196e51",
+ "complete": true
+}
