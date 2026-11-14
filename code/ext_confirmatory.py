@@ -225,17 +225,11 @@ def main():
     if r:
         rob["fixed_lr"] = {k: r[0][k] for k in ("diff", "ci95", "p", "seeds_p", "seeds_x")}
         
-    # 2. Nhánh Second-best LR (Đã sửa: Lọc cứng theo cell trước khi chọn branch)
+    # 2. Nhánh Second-best LR (Đã sửa: Tự động tìm mọi cell có chứa chữ 'SECOND')
     if a.decision_p and a.decision_x and os.path.exists(a.decision_p) and os.path.exists(a.decision_x):
         try:
-            dp_sec_src = dp_all[dp_all['cell'] == 'B1X_SECOND']
-            dx_sec_src = dx_all[dx_all['cell'] == 'R1_SECOND']
-            
-            # Fallback nếu tên cell khác (ví dụ chỉ chứa chữ SECOND)
-            if dp_sec_src.empty:
-                dp_sec_src = dp_all[dp_all['cell'].astype(str).str.contains('SECOND', na=False)]
-            if dx_sec_src.empty:
-                dx_sec_src = dx_all[dx_all['cell'].astype(str).str.contains('SECOND', na=False)]
+            dp_sec_src = dp_all[dp_all['cell'].astype(str).str.contains('SECOND', na=False)]
+            dx_sec_src = dx_all[dx_all['cell'].astype(str).str.contains('SECOND', na=False)]
             
             if not dp_sec_src.empty and not dx_sec_src.empty:
                 dp_second = select_branch(dp_sec_src, load_second_best(a.decision_p))
@@ -245,7 +239,7 @@ def main():
                 if r_sec:
                     rob["second_best_lr"] = {k: r_sec[0][k] for k in ("diff", "ci95", "p", "seeds_p", "seeds_x")}
             else:
-                print("Cảnh báo: Không tìm thấy dữ liệu cell B1X_SECOND hoặc R1_SECOND trong file CSV.")
+                print("Cảnh báo: Không tìm thấy dữ liệu cell chứa chữ 'SECOND' trong file CSV.")
         except Exception as e:
             print(f"Không thể tính nhánh second_best: {e}")
             
