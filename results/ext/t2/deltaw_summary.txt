@@ -1,0 +1,3 @@
+﻿=== EFFECTIVE RANK ANALYSIS (T2) ===
+PhoBERT: Nominal 1 -> 1.00, Nominal 4 -> 2.82, Nominal 8 -> 4.74, Nominal 16 -> 9.39, Nominal 32 -> 19.06
+XLM-R:   Nominal 1 -> 1.00, Nominal 4 -> 2.79, Nominal 8 -> 4.63, Nominal 16 -> 9.79, Nominal 32 -> 17.08
