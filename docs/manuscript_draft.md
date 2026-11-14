@@ -14,7 +14,7 @@ A critical, yet often overlooked, confounder in rank comparison is the learning 
 In this paper, we conduct a preregistered audit to answer: *How much does global LoRA rank matter for discrimination and calibration when LR is tuned per rank?* Our contributions are fourfold:
 1. **Preregistered Equivalence Audit:** Using TOST on 160 runs on XLM-R/UIT-VSFC, we demonstrate that F1 is equivalent from rank 1 to 32 at the seed-level. However, we transparently report that sample-level bootstrap widens the CI to [-0.013, +0.006], meaning test-set noise still poses a boundary to absolute equivalence. Meanwhile, NLL significantly degrades with higher ranks.
 2. **The LR Confounder (The Twist):** We show that the apparent rank-by-epoch interaction reverses sign when LR is fixed (from +0.017 to -0.033). This proves that prior "rank effects" may be artifacts of hyperparameter misconfiguration rather than inherent model properties.
-3. **Model-Dependence:** Through extensions to PhoBERT, we demonstrate that rank effects are model-protocol dependent: while rank 1 suffices for XLM-R, smaller models require higher ranks to achieve optimal F1.
+3. **Model-Dependence:** Through extensions to PhoBERT, we demonstrate that rank effects are model-protocol dependent: while rank 1 suffices for XLM-R, model architecture differences do not necessitate higher ranks under fair tuning to achieve optimal F1.
 4. **Adaptive Rank Baseline:** We show that AdaLoRA underperforms a simple global rank 8 under matched conditions, suggesting that gradient-based importance scores may be optimizing on noise.
 
 ## 2. Related Work
@@ -80,5 +80,6 @@ This paper evaluated the effect of global LoRA rank under a preregistered equiva
 - Guo et al. (2017) â€” On calibration of modern neural networks. ICML.
 ### Statistical Power and Reproducibility Limits
 Our design with 16 seeds provides sufficient power to detect interaction effects of magnitude 0.009 or larger. 
-The observed E1 interaction (Delta = +0.0073) falls just below this threshold (p_holm = 0.065). We therefore report it as "suggestive evidence" rather than a confirmed finding. 
+The observed E1 interaction (Delta = +0.0073) falls just below this threshold (p_holm = 0.065). We therefore report it as "insufficient evidence" rather than a confirmed finding. 
 Furthermore, we acknowledge that the legacy B1/V4 results could not be exactly reproduced due to missing environment logs, and we have completely replaced them with the strictly controlled B1X (16 seeds, locked environment) results presented here.
+

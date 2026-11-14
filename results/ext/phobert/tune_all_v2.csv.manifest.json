@@ -1,0 +1,33 @@
+{
+ "out": "results/ext/phobert/tune_all_v2.csv",
+ "n_runs": 60,
+ "sources": [
+  "results/ext/phobert/tune_all.csv"
+ ],
+ "n_duplicates_dropped": 0,
+ "conflicts": [],
+ "missing": [],
+ "meta": {
+  "precision": [
+   "fp16"
+  ],
+  "git": [
+   "ea2f1d7",
+   "ea2f1d7+dirty"
+  ],
+  "batch_size": [
+   "32"
+  ],
+  "max_len": [
+   "128"
+  ],
+  "alpha_mode": [
+   "2r"
+  ],
+  "class_weight": [
+   "none"
+  ]
+ },
+ "sha256": "811f9f43786b9da5ec53f8f4f3a94ec035ef5b3caad51cfcad03bdc8fb5babc8",
+ "complete": true
+}
