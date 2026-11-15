@@ -93,6 +93,18 @@ def decide(df, f1_col="macro_f1", thresh=LR_THRESH, stage="final"):
     return decision, needs_ext
 
 
+def resolve_f1_col(df, f1_col):
+    """Guard against selecting LR on the test split: if any row was scored on a file other than
+    calibration.csv, the column macro_f1 is test F1 and must not be used; use cal_macro_f1 instead."""
+    if "eval_file" in df.columns and (df["eval_file"] != "calibration.csv").any():
+        if "cal_macro_f1" not in df.columns:
+            raise SystemExit("LỖI: có dòng chấm trên test và không có cột cal_macro_f1; không được chọn LR trên test.")
+        if f1_col != "cal_macro_f1":
+            print("CẢNH BÁO: có dòng chấm trên test; tự động dùng cal_macro_f1 để chọn LR.")
+        return "cal_macro_f1"
+    return f1_col
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("csv", help="CSV tune (run_pilot.py --eval_file calibration.csv => cột macro_f1 = F1 calibration)")
@@ -115,6 +127,7 @@ def main():
     seeds = sorted(df["seed"].unique())
     if set(seeds) - set(TUNE_SEEDS):
         print(f"CẢNH BÁO: seed trong file tune {seeds} khác {TUNE_SEEDS}; seed tune phải tách khỏi seed chạy chính.")
+    a.f1_col = resolve_f1_col(df, a.f1_col)
     dec, needs = decide(df, a.f1_col, a.thresh, a.stage)
 
     print(f"\n=== Quy tắc LR (stage={a.stage}) | {len(df)} lượt | seed={seeds} ===")

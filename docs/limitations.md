@@ -200,10 +200,10 @@ Kết quả R1 cho thấy H3 có ý nghĩa (p_holm = 0.007) với tương tác r
 - H3 (rank × epoch) chỉ được kiểm cho XLM-R nếu không chạy mức P3 (PhoBERT 3 epoch).
 - Hiệu chuẩn (ECE, temperature scaling) và ΔW cho PhoBERT chỉ có từ lần chạy B1X (logits và ΔW của B1 cũ không được lưu trong repo).
 
-## Final Limitations (Post-Review)
-- T2/T3 are post-hoc analyses. T3 used only 4 seeds.
-- T2_XLM is identical to R1 (not independent).
-- LR selection was done in a different session than confirmation.
-- PhoBERT's 5e-5 extension was run post-hoc and did not change the LR map.
-- AdaLoRA was not tuned for LR.
-- Data split is fixed (test-set noise remains a boundary).
+## Final Limitations (Post-Review, 2026-11-15)
+- T2 and T3 are post-hoc analyses (not registered). T3 used only 4 seeds, so power is low for effects below 0.02.
+- T2_XLM is identical to R1 on 80/80 runs (F1, NLL, calibration columns equal to 6 decimals; seconds and git differ): E1 from B1X and T2 share XLM-R data and are not independent. Whether this was a bit-exact re-run has not been confirmed from logs.
+- LR selection and confirmation ran in different sessions; PhoBERT shows a reproducible ~0.02 test-F1 (0.04-0.05 calibration-F1) session gap with the same code files and seeds. Cause undetermined (no Kaggle logs; PhoBERT word-segmented data and its hashes are not in the repository).
+- PhoBERT: B1X ran before the registered one-step LR extension (`lr_map_best.json`: `extended: false` for ranks 8/16/32). 5e-5 ran after B1X results were seen. Same-session control (9 runs at 1e-4, seeds 400-402, calibration split) kept the LR map unchanged: differences +0.0205 / +0.0053 / +0.0190 vs threshold 0.005 (rank 16 only narrowly above). LRs 2e-4, 5e-4, 1e-3 come from an earlier, faster session than 5e-5.
+- AdaLoRA was not tuned for LR; 3 seeds, one configuration. No mechanism claims.
+- The data split is fixed, so test-set noise remains a boundary.

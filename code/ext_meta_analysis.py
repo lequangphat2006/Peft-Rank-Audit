@@ -60,4 +60,6 @@ if results:
     print("\n--- RANDOM EFFECTS MODEL ---")
     print(f"Pooled Delta E1: {mean_re:+.4f}")
     print(f"Tau (Between-iteration SD): {tau:.4f}")
-    print(f"95% CI: [{mean_re - 1.96*se_re:+.4f}, {mean_re + 1.96*se_re:+.4f}]")
+    tc = stats.t.ppf(0.975, df=len(deltas) - 1)
+    print(f"95% CI (DL + t, df={len(deltas)-1}): [{mean_re - tc*se_re:+.4f}, {mean_re + tc*se_re:+.4f}]")
+    print("Chạy code/ext_fix_all.py để có bản đọc từ JSON, kèm HKSJ, Q và tau.")

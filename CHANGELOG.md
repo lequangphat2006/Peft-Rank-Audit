@@ -486,7 +486,17 @@ Per-seed group mean ΔF1 cho thấy:
 - **Kaggle session reset:** `/kaggle/working/` bị xóa khi hết session. Chạy lại Cell 1–5 khi session mới.
 - **README bị mojibake:** dùng Python ghi file với `encoding='utf-8'` thay vì Notepad.
 
-## 2026-11-15 - 5e-5 Control Runs & Meta-Analysis
-- Ran 9 control runs for 1e-4 LR. Results confirmed 1e-4 is strictly better than 5e-5 on calibration. LR map remains unchanged.
-- Re-ran meta-analysis with HKSJ and DL+t methods.
-- Updated manuscript to remove overclaims.
+## 2026-11-15 — Post-review completion (T2/T3, 1e-4 control, meta-analysis, docs)
+
+### Added
+- **T2 and T3 (post-hoc, not registered):** T2 re-run of the main protocol (seeds 300-315 / 200-215), T3-F2 and T3-F3 (alternative stratified folds, 4 seeds each); results under `results/ext/t2/` and `results/ext/t3/`. T2_XLM equals R1 on 80/80 runs, so E1 of B1X and T2 are not independent.
+- **5e-5 PhoBERT extension** (`results/tuning/tuning_5e5.csv`, scored on test.csv; LR selection must use `cal_macro_f1`) and **9 same-session control runs at 1e-4** (`results/ext/phobert/tune_ctrl_1e4.csv`, calibration split). Table: `code/ext_lr_control_table.py` -> `results/ext/phobert/lr_control_table.json`. Calibration F1 1e-4 vs 5e-5: rank 8 0.7837 vs 0.7633, rank 16 0.7888 vs 0.7834, rank 32 0.7967 vs 0.7777; differences +0.0205 / +0.0053 / +0.0190 vs threshold 0.005. LR map unchanged (rank 16 only narrowly above threshold).
+- Deviation recorded: B1X ran before the registered extension was applied (`extended: false`), and 5e-5 ran after B1X results were seen.
+
+### Fixed
+- `code/ext_fix_all.py` now reads deltas and SEs from the confirmatory*.json files (no hand-typed values), reports DerSimonian-Laird + t(k-1) and HKSJ intervals, tau, Q and I2, and prints the spec curve for B1X and T2. Output: `results/ext/meta_analysis.json` (pooled +0.0020; DL+t [-0.0095, +0.0135]; HKSJ [-0.0106, +0.0145]; tau 0.0059; Q p = 0.023).
+- `code/ext_meta_analysis.py` uses t(k-1) quantiles instead of z = 1.96.
+- `code/ext_lr_rule.py`: `resolve_f1_col` forces `cal_macro_f1` (or aborts) if any row was scored on a file other than calibration.csv.
+- Tests added for both fixes (`code/test_ext_analysis.py`: 16 pass).
+- Manuscript v3: overclaims removed (nullified, confirms zero, independent, proves, artifact, AdaLoRA mechanism, DeltaW saturation); Q p corrected to 0.023, pooled to +0.0020.
+- `results/analysis/final_results.json` and `v1b_h3_fixed.json`: H3_fixed conclusion reworded (sign-reversed, not robust under the registered rule).

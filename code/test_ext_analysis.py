@@ -184,3 +184,24 @@ def test_alpha_paired_difference():
     out = A.analyse(pd.DataFrame(rows), [1, 8, 32], 2e-4)
     d = out["paired_nll_fixed16_minus_2r"]
     assert d["est"] < -0.003 and d["ci95"][1] < 0 and d["n"] == 8
+
+
+# ------------------------------------------------- guard split + meta-analysis
+def test_resolve_f1_col_switches_to_calibration_when_test_rows_present():
+    df = pd.DataFrame(dict(eval_file=["test.csv", "test.csv"], macro_f1=[0.8, 0.8], cal_macro_f1=[0.7, 0.7]))
+    assert L.resolve_f1_col(df, "macro_f1") == "cal_macro_f1"
+    df2 = pd.DataFrame(dict(eval_file=["calibration.csv"], macro_f1=[0.7]))
+    assert L.resolve_f1_col(df2, "macro_f1") == "macro_f1"
+    with pytest.raises(SystemExit):
+        L.resolve_f1_col(pd.DataFrame(dict(eval_file=["test.csv"], macro_f1=[0.8])), "macro_f1")
+
+
+def test_random_effects_hksj_reads_values_and_is_wider_than_dl_z():
+    import ext_fix_all as F
+    d = np.array([0.0073, 0.0014, -0.0104, 0.0072])
+    s = np.array([0.0032, 0.0037, 0.0051, 0.0045])
+    res = F.random_effects(d, s)
+    assert abs(res["pooled"] - 0.0020) < 5e-4
+    assert res["DL_t_ci95"][1] - res["DL_t_ci95"][0] > res["DL_z_ci95"][1] - res["DL_z_ci95"][0]
+    assert res["HKSJ_ci95"][0] < res["DL_t_ci95"][0] + 1e-3
+    assert 0 < res["Q_p"] < 0.05
