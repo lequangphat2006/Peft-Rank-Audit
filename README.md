@@ -6,7 +6,7 @@
 
 **Đăng ký trước (pre-registration):** [10.17605/OSF.IO/A2MN5](https://doi.org/10.17605/OSF.IO/A2MN5) (công khai 2026-10-16)
 
-**Mã nguồn (Code DOI):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23770237.svg)](https://doi.org/10.5281/zenodo.23770237)
+**Mã nguồn (Code DOI):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24243707.svg)](https://doi.org/10.5281/zenodo.24243707)
 
 > **Trạng thái (2026-10-18):** Đã hoàn thành các thực nghiệm xác nhận (R1, B1, B2) và các phân tích hậu kiểm (V1–V8, độ nhạy α, AdaLoRA). Đang soạn bản thảo. Mọi phân tích được thiết kế sau khi đã thấy dữ liệu đều được gắn nhãn "hậu kiểm" hoặc "thăm dò" và ghi trong mục 9 của kế hoạch phân tích.
 
@@ -169,4 +169,5 @@ Môi trường đã dùng: peft 0.21.2, transformers 5.16.1, torch 2.13 (xem `re
 **Tác giả liên hệ:** TS. Đinh Thị Hồng Huyên
 **Đồng tác giả:** Lê Quang Phát
 **Đơn vị:** Khoa Công nghệ Thông tin, Trường Đại học Quy Nhơn
+
 
