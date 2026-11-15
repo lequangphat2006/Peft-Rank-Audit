@@ -485,3 +485,8 @@ Per-seed group mean ΔF1 cho thấy:
 - **Đường dẫn double `code/code/`:** clone repo vào `/kaggle/working/code` → code nằm ở `/kaggle/working/code/code/`.
 - **Kaggle session reset:** `/kaggle/working/` bị xóa khi hết session. Chạy lại Cell 1–5 khi session mới.
 - **README bị mojibake:** dùng Python ghi file với `encoding='utf-8'` thay vì Notepad.
+
+## 2026-11-15 - 5e-5 Control Runs & Meta-Analysis
+- Ran 9 control runs for 1e-4 LR. Results confirmed 1e-4 is strictly better than 5e-5 on calibration. LR map remains unchanged.
+- Re-ran meta-analysis with HKSJ and DL+t methods.
+- Updated manuscript to remove overclaims.

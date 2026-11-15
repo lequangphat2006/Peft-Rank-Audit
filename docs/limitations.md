@@ -199,3 +199,11 @@ Kết quả R1 cho thấy H3 có ý nghĩa (p_holm = 0.007) với tương tác r
 - Chỉ một tác vụ (UIT-VSFC sentiment) có đủ quy trình; B2 (AG News) dùng LR cố định.
 - H3 (rank × epoch) chỉ được kiểm cho XLM-R nếu không chạy mức P3 (PhoBERT 3 epoch).
 - Hiệu chuẩn (ECE, temperature scaling) và ΔW cho PhoBERT chỉ có từ lần chạy B1X (logits và ΔW của B1 cũ không được lưu trong repo).
+
+## Final Limitations (Post-Review)
+- T2/T3 are post-hoc analyses. T3 used only 4 seeds.
+- T2_XLM is identical to R1 (not independent).
+- LR selection was done in a different session than confirmation.
+- PhoBERT's 5e-5 extension was run post-hoc and did not change the LR map.
+- AdaLoRA was not tuned for LR.
+- Data split is fixed (test-set noise remains a boundary).
